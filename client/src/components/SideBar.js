@@ -1,7 +1,7 @@
 import React from "react";
 import SideBarLink from "./SideBarLink";
 import { HomeIcon } from "@heroicons/react/solid";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   HashtagIcon,
   BellIcon,
@@ -14,8 +14,9 @@ import {
 } from "@heroicons/react/outline";
 
 const SideBar = () => {
+  const navigate = useNavigate();
   return (
-    <div className='text-[#d9d9d9] bg-black hidden w-[85px] sm:flex flex-col items-center xl:items-start xl:w-[340px] p-2 h-full'>
+    <div className='text-[#d9d9d9] bg-black hidden w-[85px] sm:flex fixed flex-col items-center xl:items-start xl:w-[340px] p-2 h-full'>
       <Link
         to='/home'
         className='flex items-center justify-center w-14 hoverAnim p-0 xl:ml-24'
@@ -23,25 +24,25 @@ const SideBar = () => {
         <img src='https://rb.gy/ogau5a' className='h-7' />
       </Link>
       <div className='space-y-2 xl:ml-24 mb-2.5'>
-        <SideBarLink link='/home' text='Home' Icon={HomeIcon} active />
-        <SideBarLink link='/profile' text='Explore' Icon={HashtagIcon} />
-        <SideBarLink link='/profile' text='Notifications' Icon={BellIcon} />
-        <SideBarLink link='/profile' text='Messages' Icon={InboxIcon} />
+        <SideBarLink link='/home' text='Home' Icon={HomeIcon} />
+        <SideBarLink link='/explore' text='Explore' Icon={HashtagIcon} />
         <SideBarLink
-          link='/profile'
-          text='Bookmarks'
-          Icon={BookmarkIcon}
-          active
+          link='/notification'
+          text='Notifications'
+          Icon={BellIcon}
         />
-        <SideBarLink link='/profile' text='Lists' Icon={ClipboardListIcon} />
-        <SideBarLink link='/profile' text='Profile' Icon={UserIcon} />
-        <SideBarLink
-          link='/profile'
-          text='More'
-          Icon={DotsCircleHorizontalIcon}
-        />
+        <SideBarLink link='/messages' text='Messages' Icon={InboxIcon} />
+        <SideBarLink link='/profile' text='Bookmarks' Icon={BookmarkIcon} />
+        <SideBarLink link='/bookmarks' text='Lists' Icon={ClipboardListIcon} />
+        <SideBarLink link='/Arpit_ba19856' text='Profile' Icon={UserIcon} />
+        <SideBarLink link='/k' text='More' Icon={DotsCircleHorizontalIcon} />
       </div>
-      <button className='hidden xl:inline ml-auto text-white bg-[#1d9bf0] rounded-full w-56 h-[50px] font-bold text-lg hover:bg-[#1a8cd8]'>
+      <button
+        onClick={() => {
+          navigate("/home/compose");
+        }}
+        className='hidden xl:inline ml-auto text-white bg-[#1d9bf0] rounded-full w-56 h-[50px] font-bold text-lg hover:bg-[#1a8cd8]'
+      >
         Tweet
       </button>
       <div className='flex items-center justify-around mt-14 xl:ml-auto xl:-mr-10 mb-2 hoverAnim'>

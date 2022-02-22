@@ -9,6 +9,8 @@ import {
 import "emoji-mart/css/emoji-mart.css";
 import { Picker } from "emoji-mart";
 
+import TextareaAutosize from "react-textarea-autosize";
+
 const CreateTweet = () => {
   const [selectedImages, setSelectedImages] = useState([]);
   const [showEmojis, setShowEmojis] = useState(false);
@@ -53,20 +55,20 @@ const CreateTweet = () => {
 
       <div className='w-full divide-y divide-gray-700'>
         <div className={`mt-3 ${selectedImages.length > 0 && "mb-5"}`}>
-          <textarea
-            rows='2'
+          <TextareaAutosize
             value={tweet}
-            onClick={() => setShowEmojis(false)}
-            onChange={(e) => setTweet(e.target.value)}
-            className='b w-full bg-transparent outline-none text-[#d9d9d9] text-xl placeholder-gray-500 tracking-wide'
+            minRows={2}
             placeholder="What's happening?"
-          ></textarea>
+            maxRows={30}
+            onChange={(e) => setTweet(e.target.value)}
+            className='bg-transparent pb-4 outline-none text-[#d9d9d9] text-xl placeholder-gray-500 tracking-wide w-full'
+          />
           {selectedImages.length > 0 && (
             <div className='grid grid-cols-2 gap-2 mb-3'>
               {selectedImages.map((el, index) => (
                 <div
                   key={el.url}
-                  className='relative overflow-hidden rounded-2xl h-[170px]'
+                  className='relative overflow-hidden rounded-2xl h-[200px]'
                 >
                   <div className='absolute w-8 h-8 bg-[#15181c] hover:bg-[#272c26] bg-opacity-75 rounded-full flex items-center justify-center top-1 left-1 cursor-pointer'>
                     <XIcon
@@ -79,7 +81,7 @@ const CreateTweet = () => {
                   <img
                     src={el.url}
                     alt=''
-                    className='overflow-hidden rounded-2xl object-contain'
+                    className='overflow-hidden rounded-2xl object-cover h-[200px]'
                   />
                 </div>
               ))}
