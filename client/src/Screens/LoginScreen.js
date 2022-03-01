@@ -1,12 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { XIcon, ArrowLeftIcon } from "@heroicons/react/outline";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../redux/actions/auth";
+import { useCookies } from "react-cookie";
+import Loader from "../components/Loader";
 
 const mailRegex =
   /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 const LoginScreen = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user, loading, err } = useSelector((state) => state.auth);
   const [passPage, setpassPage] = useState(false);
 
   const [email, setEmail] = useState("");
@@ -14,6 +20,17 @@ const LoginScreen = () => {
   const [username, setUsername] = useState("");
   const [option, toggleOption] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
+  const [cookies, setCookie] = useCookies(["_token"]);
+
+  useEffect(() => {
+    if (user) {
+      navigate("/home");
+    }
+  }, [user]);
+
+  const onLogin = async () => {
+    dispatch(loginUser(email, password, username, setCookie));
+  };
 
   return (
     <div className='flex text-white justify-center items-center bg-[#5B708366] h-screen w-screen'>
@@ -104,71 +121,78 @@ const LoginScreen = () => {
       )}
       {passPage && (
         <div className='relative bg-black flex flex-col items-center sm:items-start px-[2rem] w-full sm:w-[600px] h-5/6 rounded-xl py-[1rem]'>
-          <div className='absolute w-8 h-8 hover:bg-[#d9d9d9] hover:bg-opacity-10 duration-200 rounded-full flex items-center justify-center top-3 left-3 cursor-pointer'>
-            <ArrowLeftIcon
-              onClick={() => {
-                setpassPage(false);
-                setPassowrd("");
-              }}
-              className='text-white h-5'
-            />
-          </div>
-          <img
-            src='https://rb.gy/ogau5a'
-            className='se self-center opacity-80 h-8 w-8'
-          />
+          {loading && <Loader />}
+          {!loading && (
+            <>
+              <div className='absolute w-8 h-8 hover:bg-[#d9d9d9] hover:bg-opacity-10 duration-200 rounded-full flex items-center justify-center top-3 left-3 cursor-pointer'>
+                <ArrowLeftIcon
+                  onClick={() => {
+                    setpassPage(false);
+                    setPassowrd("");
+                  }}
+                  className='text-white h-5'
+                />
+              </div>
+              <img
+                src='https://rb.gy/ogau5a'
+                className='se self-center opacity-80 h-8 w-8'
+              />
 
-          <div className='text-xl my-5 font-bold text-[#d9d9d9]'>
-            Enter Your password
-          </div>
-          <div className='text-red-500 my-4 border rounded-full text-center py-2 w-full bg-[#8a202041] border-red-500'>
-            Invalid credentials
-          </div>
-          {!option && (
-            <input
-              className='bg-transparent my-3 px-3 w-full bg-gray-600 bg-opacity-20 text-[#6e767d] border border-gray-700 rounded-md py-4'
-              value={email}
-              type='email'
-              disabled
-            />
+              <div className='text-xl my-5 font-bold text-[#d9d9d9]'>
+                Enter Your password
+              </div>
+              {err && (
+                <div className='text-red-500 my-4 border rounded-full text-center py-2 w-full bg-[#8a202041] border-red-500'>
+                  {err}
+                </div>
+              )}
+              {!option && (
+                <input
+                  className='bg-transparent my-3 px-3 w-full bg-gray-600 bg-opacity-20 text-[#6e767d] border border-gray-700 rounded-md py-4'
+                  value={email}
+                  type='email'
+                  disabled
+                />
+              )}
+              {option && (
+                <input
+                  className='bg-transparent my-3 px-3 w-full bg-gray-600 bg-opacity-20 text-[#6e767d] border-gray-700 rounded-md py-4'
+                  placeholder='Password'
+                  type='text'
+                  value={username}
+                  disabled
+                />
+              )}
+              <input
+                disabled={loading}
+                className='bg-transparent mt-3 px-2 w-full outline-none focus:border-[#1d9bf0] focus:border-2 border border-gray-700 rounded-md py-4'
+                placeholder='Password'
+                value={password}
+                onChange={(e) => setPassowrd(e.target.value)}
+                type='password'
+              />
+              <div className='text-sm hover:underline cursor-pointer ml-2 text-[#1d9bf0]'>
+                Forgot password?
+              </div>
+              <button
+                onClick={onLogin}
+                disabled={password.trim() === ""}
+                className='bg-white hover:bg-gray-200 mb-20 disabled:bg-[#d9d9d9] disabled:cursor-not-allowed text-black rounded-full mt-auto w-full py-2'
+              >
+                login
+              </button>
+              <div className='text-[#6e767d] '>
+                Don't have an account?{" "}
+                <Link
+                  className='inline text-[#1d9bf0] hover:underline'
+                  to='/register'
+                  disabled={loading}
+                >
+                  Sign up
+                </Link>
+              </div>
+            </>
           )}
-          {option && (
-            <input
-              className='bg-transparent my-3 px-3 w-full bg-gray-600 bg-opacity-20 text-[#6e767d] border-gray-700 rounded-md py-4'
-              placeholder='Password'
-              type='text'
-              value={username}
-              disabled
-            />
-          )}
-          <input
-            className='bg-transparent mt-3 px-2 w-full outline-none focus:border-[#1d9bf0] focus:border-2 border border-gray-700 rounded-md py-4'
-            placeholder='Password'
-            value={password}
-            onChange={(e) => setPassowrd(e.target.value)}
-            type='password'
-          />
-          <div className='text-sm hover:underline cursor-pointer ml-2 text-[#1d9bf0]'>
-            Forgot password?
-          </div>
-          <button
-            onClick={() => {
-              navigate("/home");
-            }}
-            disabled={password.trim() === ""}
-            className='bg-white hover:bg-gray-200 mb-20 disabled:bg-[#d9d9d9] disabled:cursor-not-allowed text-black rounded-full mt-auto w-full py-2'
-          >
-            login
-          </button>
-          <div className='text-[#6e767d] '>
-            Don't have an account?{" "}
-            <Link
-              className='inline text-[#1d9bf0] hover:underline'
-              to='/register'
-            >
-              Sign up
-            </Link>
-          </div>
         </div>
       )}
     </div>

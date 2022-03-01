@@ -7,7 +7,6 @@ import {
   PhotographIcon,
   XIcon,
 } from "@heroicons/react/outline";
-import Moment from "react-moment";
 
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 
@@ -17,7 +16,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import { useDispatch } from "react-redux";
 import { setreplymodal } from "../redux/actions/modal";
 
-function Modal() {
+function Modal({ isOpen, closeModal }) {
   const [post, setPost] = useState();
   const [comment, setComment] = useState("");
   const location = useLocation();
@@ -29,12 +28,6 @@ function Modal() {
   const [showEmojis, setShowEmojis] = useState(false);
 
   const imagePickerRef = useRef();
-
-  // const [isOpen, setIsOpen] = useState(true);
-
-  const closeModal = () => {
-    dispatch(setreplymodal());
-  };
 
   const imageAdd = (e) => {
     let images = [...e.target.files];
@@ -58,7 +51,7 @@ function Modal() {
   };
 
   return (
-    <Transition.Root show={true} as={Fragment}>
+    <Transition.Root show={isOpen} as={Fragment}>
       <Dialog as='div' className='fixed z-50 inset-0 pt-2' onClose={closeModal}>
         <div className='flex items-start justify-center min-h-[800px] sm:min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0'>
           <Transition.Child
@@ -88,10 +81,10 @@ function Modal() {
             >
               <div className='flex items-center px-1.5 py-2'>
                 <div
-                  className='hoverAnim w-9 h-9 flex items-center justify-center xl:px-0'
                   onClick={() => {
                     closeModal();
                   }}
+                  className='hoverAnim w-9 h-9 flex items-center justify-center xl:px-0'
                 >
                   <XIcon className='h-[20px] text-gray-200' />
                 </div>
@@ -116,7 +109,6 @@ function Modal() {
                       </div>{" "}
                       ·{" "}
                       <span className='hover:underline text-sm sm:text-[15px]'>
-                        {/* <Moment fromNow>{post?.timestamp?.toDate()}</Moment> */}
                         Jan 9
                       </span>
                       <p className='text-[#d9d9d9] text-[15px] sm:text-base'>

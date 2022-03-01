@@ -7,19 +7,17 @@ import {
   PhotographIcon,
   XIcon,
 } from "@heroicons/react/outline";
-import Moment from "react-moment";
-
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
-
 import "emoji-mart/css/emoji-mart.css";
 import { Picker } from "emoji-mart";
 import TextareaAutosize from "react-textarea-autosize";
+import { useSelector, useDispatch } from "react-redux";
+import { createPost } from "../redux/actions/post";
 
 const CreateTweetModal = () => {
-  let [searchParams, setSearchParams] = useSearchParams();
-  const [post, setPost] = useState();
-  const [comment, setComment] = useState("");
-  const location = useLocation();
+  const dispatch = useDispatch();
+  const { loading, err } = useSelector((state) => state.createPost);
+  const [post, setPost] = useState("");
   const navigate = useNavigate();
 
   const [selectedImages, setSelectedImages] = useState([]);
@@ -29,15 +27,23 @@ const CreateTweetModal = () => {
   const imagePickerRef = useRef();
 
   const [isOpen, setIsOpen] = useState(true);
-  // const [isOpen, setIsOpen] = useState(true);
 
   const closeModal = () => {
     navigate("/home");
   };
 
-  // useEffect(() => {
-  //   setIsOpen(searchParams.get("compose") === "tweet");
-  // }, [location]);
+  const sendPost = () => {
+    if (post.trim().length === 0 && selectedImages.length === 0) return;
+
+    dispatch(
+      createPost(
+        post.trim(),
+        selectedImages.map((el) => el.url)
+      )
+    ).then(() => {
+      closeModal();
+    });
+  };
 
   const imageAdd = (e) => {
     let images = [...e.target.files];
@@ -49,7 +55,7 @@ const CreateTweetModal = () => {
 
   const addEmoji = (e) => {
     console.log(e.native);
-    setComment(comment + e.native);
+    setPost(post + e.native);
   };
 
   const removeImage = (name) => {
@@ -109,11 +115,13 @@ const CreateTweetModal = () => {
                     />
                     <div className='flex-grow mt-2'>
                       <TextareaAutosize
-                        value={comment}
+                        value={post}
                         minRows={3}
+                        disabled={loading}
+                        style={{ resize: "none" }}
                         placeholder="What's Happening?"
                         maxRows={30}
-                        onChange={(e) => setComment(e.target.value)}
+                        onChange={(e) => setPost(e.target.value)}
                         className='bg-transparent outline-none pb-3 text-[#d9d9d9] text-xl placeholder-gray-500 tracking-wide w-full'
                       />
 
@@ -142,67 +150,72 @@ const CreateTweetModal = () => {
                         </div>
                       )}
 
-                      <div className='flex items-center justify-between pt-2.5 border-t border-gray-700'>
-                        <div className='flex items-center'>
-                          <div
-                            className='icon cursor-pointer'
-                            onClick={() => {
-                              setShowEmojis(false);
-                              imagePickerRef.current.click();
-                            }}
-                          >
-                            <PhotographIcon className='text-[#1d9bf0] h-[22px]' />
-                            <input
-                              type='file'
-                              hidden
-                              accept='image/*'
-                              onChange={imageAdd}
-                              multiple
-                              ref={imagePickerRef}
-                            />
-                          </div>
-
-                          <div className='icon rotate-90'>
-                            <ChartBarIcon className='text-[#1d9bf0] h-[22px]' />
-                          </div>
-
-                          <div
-                            className='icon'
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setShowEmojis(!showEmojis);
-                            }}
-                          >
-                            <EmojiHappyIcon className='text-[#1d9bf0] h-[22px]' />
-                          </div>
-                          {showEmojis && (
-                            <Picker
-                              onSelect={addEmoji}
-                              style={{
-                                position: "absolute",
-                                marginTop: "-470px",
-                                marginLeft: "-62px",
-                                borderRadius: "30px",
-                                maxWidth: "320px",
-                                zIndex: "101",
+                      {!loading && (
+                        <div className='flex items-center justify-between pt-2.5 border-t border-gray-700'>
+                          <div className='flex items-center'>
+                            <div
+                              className='icon cursor-pointer'
+                              onClick={() => {
+                                setShowEmojis(false);
+                                imagePickerRef.current.click();
                               }}
-                              theme='dark'
-                            />
-                          )}
+                            >
+                              <PhotographIcon className='text-[#1d9bf0] h-[22px]' />
+                              <input
+                                type='file'
+                                hidden
+                                accept='image/*'
+                                onChange={imageAdd}
+                                multiple
+                                ref={imagePickerRef}
+                              />
+                            </div>
 
-                          <div className='icon'>
-                            <CalendarIcon className='text-[#1d9bf0] h-[22px]' />
+                            <div className='icon rotate-90'>
+                              <ChartBarIcon className='text-[#1d9bf0] h-[22px]' />
+                            </div>
+
+                            <div
+                              className='icon'
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setShowEmojis(!showEmojis);
+                              }}
+                            >
+                              <EmojiHappyIcon className='text-[#1d9bf0] h-[22px]' />
+                            </div>
+                            {showEmojis && (
+                              <Picker
+                                onSelect={addEmoji}
+                                style={{
+                                  position: "absolute",
+                                  marginTop: "-470px",
+                                  marginLeft: "-62px",
+                                  borderRadius: "30px",
+                                  maxWidth: "320px",
+                                  zIndex: "101",
+                                }}
+                                theme='dark'
+                              />
+                            )}
+
+                            <div className='icon'>
+                              <CalendarIcon className='text-[#1d9bf0] h-[22px]' />
+                            </div>
                           </div>
+                          <button
+                            className='bg-[#1d9bf0] text-white rounded-full px-4 py-1.5 font-bold shadow-md hover:bg-[#1a8cd8] disabled:hover:bg-[#1d9bf0] disabled:opacity-50 disabled:cursor-default'
+                            type='submit'
+                            onClick={sendPost}
+                            disabled={
+                              post.trim().length === 0 &&
+                              selectedImages.length === 0
+                            }
+                          >
+                            Tweet
+                          </button>
                         </div>
-                        <button
-                          className='bg-[#1d9bf0] text-white rounded-full px-4 py-1.5 font-bold shadow-md hover:bg-[#1a8cd8] disabled:hover:bg-[#1d9bf0] disabled:opacity-50 disabled:cursor-default'
-                          type='submit'
-                          // onClick={sendComment}
-                          disabled={!comment.trim()}
-                        >
-                          Tweet
-                        </button>
-                      </div>
+                      )}
                     </div>
                   </div>
                 </div>

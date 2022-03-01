@@ -13,34 +13,29 @@ import {
   HeartIcon as HeartIconFilled,
   ChatIcon as ChatIconFilled,
 } from "@heroicons/react/solid";
-import React from "react";
-import Moment from "react-moment";
+import React, { useState } from "react";
 import Modal from "./Modal";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setreplymodal } from "../redux/actions/modal";
+import Moment from "react-moment";
+import { dateDisplayPost, timeDateDisplay } from "../utils/datesAndTime";
 
-const Post = ({ postPage, post, onComment }) => {
+const Post = ({ postPage, post }) => {
   let liked = false;
-  let likes = 5;
   let comments = 3;
   const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useDispatch();
   const { isReply } = useSelector((state) => state.modal);
-  const urls = [
-    "https://www.ft.com/__origami/service/image/v2/images/raw/http%3A%2F%2Fcom.ft.imagepublish.upp-prod-eu.s3.amazonaws.com%2Fa4e8f394-313b-11ea-a329-0bcf87a328f2?fit=scale-down&source=next&width=700",
-    "https://www.ft.com/__origami/service/image/v2/images/raw/http%3A%2F%2Fcom.ft.imagepublish.upp-prod-eu.s3.amazonaws.com%2Fa4e8f394-313b-11ea-a329-0bcf87a328f2?fit=scale-down&source=next&width=700",
-    "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/2022-chevrolet-corvette-z06-1607016574.jpg?crop=0.737xw:0.738xh;0.181xw,0.218xh&resize=980:*",
-    "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/2022-chevrolet-corvette-z06-1607016574.jpg?crop=0.737xw:0.738xh;0.181xw,0.218xh&resize=980:*",
-  ];
+  const [openModal, setOpenModal] = useState(false);
 
   return (
     <>
       <div
         className='p-3 flex cursor-pointer border-b border-gray-700'
         onClick={() => {
-          navigate(`/Light/status/123456789`);
+          if (!postPage)
+            navigate(`/${post.author.username}/status/${post._id}`);
         }}
       >
         {!postPage && (
@@ -65,23 +60,25 @@ const Post = ({ postPage, post, onComment }) => {
                     !postPage && "inline-block"
                   }`}
                 >
-                  Light
+                  {post.author.name}
                 </h4>
                 <span
                   className={`text-sm sm:text-[15px] ${!postPage && "ml-1.5"}`}
                 >
-                  @hayets
+                  @{post.author.username}
                 </span>
               </div>{" "}
+              &#8231;{" "}
               {!postPage && (
                 <span className='hover:underline text-sm sm:text-[15px]'>
                   {/* <Moment fromNow>{post?.timestamp?.toDate()}</Moment> */}
-                  Jan 25
+                  {/* {<Moment fromNow>{post.createdAt}</Moment>} */}
+                  {dateDisplayPost(post.createdAt)}
                 </span>
               )}
               {!postPage && (
                 <p className='text-[#d9d9d9] text-[15px] sm:text-base mt-0.5'>
-                  Hahahahaha lool!
+                  {post.content}
                 </p>
               )}
             </div>
@@ -90,13 +87,11 @@ const Post = ({ postPage, post, onComment }) => {
             </div>
           </div>
           {postPage && (
-            <p className='text-[#d9d9d9] mt-0.5 text-xl'>
-              Hahahahahahahaha looool!!!
-            </p>
+            <p className='text-[#d9d9d9] mt-0.5 text-xl'>{post.content}</p>
           )}
-          {urls.length == 4 && (
+          {post.images.length == 4 && (
             <div className='grid  grid-cols-2 gap-[3px] max-h-[300px] mb-2 rounded-2xl border border-gray-700 overflow-hidden'>
-              {urls.map((el, index) => (
+              {post.images.map((el, index) => (
                 <img
                   key={index}
                   src={el}
@@ -106,9 +101,9 @@ const Post = ({ postPage, post, onComment }) => {
               ))}
             </div>
           )}
-          {urls.length == 2 && (
+          {post.images.length == 2 && (
             <div className='grid  grid-cols-2 gap-[3px] max-h-[300px] mb-2 rounded-2xl border border-gray-700 overflow-hidden'>
-              {urls.map((el, index) => (
+              {post.images.map((el, index) => (
                 <img
                   key={index}
                   src={el}
@@ -118,18 +113,18 @@ const Post = ({ postPage, post, onComment }) => {
               ))}
             </div>
           )}
-          {urls.length == 1 && (
+          {post.images.length == 1 && (
             <div className='border max-h-[300px] overflow-hidden border-gray-700 rounded-2xl mb-2'>
               <img
-                src={urls[0]}
+                src={post.images[0]}
                 alt=''
                 className='h-[300px] w-full object-cover object-center mr-2'
               />
             </div>
           )}
-          {urls.length == 3 && (
+          {post.images.length == 3 && (
             <div className='grid grid-cols-2 max-h-[300px] gap-[3px] grid-flow-col mb-2 rounded-2xl border border-gray-700 overflow-hidden'>
-              {urls.map((el, index) => (
+              {post.images.map((el, index) => (
                 <div className={`${index === 0 ? "row-span-2" : ""}`}>
                   <img
                     key={index}
@@ -145,10 +140,9 @@ const Post = ({ postPage, post, onComment }) => {
           )}
 
           {postPage && (
-            <div className='ml-1 border-b border-gray-700 pb-4 pt-2 text-[#6e767d] text-sm sm:text-[15px] tracking-wide'>
-              <span>10:09 PM</span>
-              <span className='mx-1'>.</span>
-              <span>Feb 19, 2022</span>
+            <div className='ml-1 hover:underline-offset-1 hover:underline border-b border-gray-700 pb-4 pt-2 text-[#6e767d] text-sm sm:text-[15px] tracking-wide'>
+              <span>{timeDateDisplay(post.createdAt)[0]}</span> &#8231;{" "}
+              <span>{timeDateDisplay(post.createdAt)[1]}</span>
             </div>
           )}
 
@@ -160,7 +154,7 @@ const Post = ({ postPage, post, onComment }) => {
             <div
               onClick={(e) => {
                 e.stopPropagation();
-                dispatch(setreplymodal());
+                setOpenModal(true);
               }}
               className='flex items-center space-x-1 group'
             >
@@ -235,7 +229,13 @@ const Post = ({ postPage, post, onComment }) => {
           </div>
         </div>
       </div>
-      {isReply && <Modal />}
+      <Modal
+        isOpen={openModal}
+        closeModal={() => {
+          setOpenModal(false);
+        }}
+      />
+      {/* {isReply && <Modal />} */}
     </>
   );
 };

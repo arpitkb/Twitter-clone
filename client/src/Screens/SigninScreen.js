@@ -1,59 +1,71 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeftIcon, XIcon } from "@heroicons/react/outline";
-import "../Loader.css";
-const months = [
-  "January",
-  "Feburary",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
+
+import { months } from "../utils/dob";
+import { useSelector, useDispatch } from "react-redux";
+import { registerUser } from "../redux/actions/auth";
+
+import { useCookies } from "react-cookie";
 
 const SigninScreen = () => {
   const [page, setPage] = useState(0);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [days, setDays] = useState(31);
   const [birthDate, setBirthDate] = useState({
-    date: "",
-    month: "",
-    year: "",
+    date: -1,
+    month: -1,
+    year: -1,
   });
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("Arpit65897");
   const [isUsernameInvalid, setIsUsernameInvalid] = useState(false);
-  const [err, setErr] = useState(null);
+  // const [err, setErr] = useState(null);
   const [t1, setT1] = useState(false);
   const [t2, setT2] = useState(false);
+
+  const [cookies, setCookie] = useCookies(["_token"]);
 
   const navigate = useNavigate();
   const mialRegex =
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   const passRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{7,15}$/;
 
+  const { user, loading, err } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (user && page != 4) {
+      navigate("/home");
+    }
+  }, [user, page]);
+
+  useEffect(() => {
+    if (user) {
+      setUsername(user.username);
+    }
+  }, [user]);
+
   const page1to2 = () => {
     setT1(true);
     if (
       name.trim() === "" ||
       !email.match(mialRegex) ||
-      birthDate.date === "" ||
-      birthDate.month === "" ||
-      birthDate.year === ""
+      birthDate.date === -1 ||
+      birthDate.month === -1 ||
+      birthDate.year === -1
     )
       return;
+
     setPage(2);
   };
 
   const page3to4 = () => {
     setT2(true);
     if (!password.match(passRegex)) return;
+    const dob = `${birthDate.year}-${birthDate.month}-${birthDate.date}`;
+    console.log(name, email, password, dob);
+    dispatch(registerUser(name, email, password, dob, setCookie));
     setPage(4);
   };
 
@@ -158,39 +170,46 @@ const SigninScreen = () => {
             <div className='col-span-4 sm:col-span-2'>
               <select
                 placeholder='Month'
-                onChange={(e) =>
-                  setBirthDate({ ...birthDate, month: e.target.value })
-                }
+                onChange={(e) => {
+                  setBirthDate({ ...birthDate, month: e.target.value });
+                  let m = e.target.value;
+                  if (m != 1) setDays(months[m][1]);
+                  else {
+                    if (birthDate.year == -1 || birthDate.year % 4 === 0)
+                      setDays(29);
+                    else setDays(28);
+                  }
+                }}
                 value={birthDate.month}
                 className={`outline-none focus:border-2 bg-transparent border w-full py-4 px-2 rounded-md ${
-                  t1 && birthDate.month === ""
+                  t1 && birthDate.month === -1
                     ? "border-red-500 focus:border-red-500"
                     : "border-gray-700 focus:border-[#1d9bf0]"
                 }`}
               >
                 <option value=''>Month</option>
-                {months.map((el) => (
-                  <option key={el} className='bg-black' value={el}>
-                    {el}
+                {months.map((el, index) => (
+                  <option key={el[0]} className='bg-black' value={index}>
+                    {el[0]}
                   </option>
                 ))}
               </select>
             </div>
             <div className='col-span-2 sm:col-span-1'>
               <select
-                onChange={(e) =>
-                  setBirthDate({ ...birthDate, date: e.target.value })
-                }
+                onChange={(e) => {
+                  setBirthDate({ ...birthDate, date: e.target.value });
+                }}
                 value={birthDate.date}
                 placeholder='Date'
                 className={`outline-none focus:border-2 bg-transparent border w-full py-4 px-2 rounded-md ${
-                  t1 && birthDate.date === ""
+                  t1 && birthDate.date === -1
                     ? "border-red-500 focus:border-red-500"
                     : "border-gray-700 focus:border-[#1d9bf0]"
                 }`}
               >
                 <option value=''>Date</option>
-                {Array.from(Array(31).keys()).map((el) => (
+                {Array.from(Array(days).keys()).map((el) => (
                   <option key={el} className='bg-black' value={el + 1}>
                     {el + 1}
                   </option>
@@ -200,24 +219,44 @@ const SigninScreen = () => {
             <div className='col-span-2 sm:col-span-1'>
               <select
                 placeholder='Year'
-                onChange={(e) =>
-                  setBirthDate({ ...birthDate, year: e.target.value })
-                }
+                onChange={(e) => {
+                  setBirthDate({ ...birthDate, year: e.target.value });
+                  if (birthDate.month == 1 && e.target.value % 4 === 0)
+                    setDays(29);
+                  else if (birthDate.month == 1 && e.target.value % 4 !== 0)
+                    setDays(28);
+                }}
                 value={birthDate.year}
                 className={`outline-none focus:border-2 bg-transparent border w-full py-4 px-2 rounded-md ${
-                  t1 && birthDate.year === ""
+                  t1 && birthDate.year === -1
                     ? "border-red-500 focus:border-red-500"
                     : "border-gray-700 focus:border-[#1d9bf0]"
                 }`}
               >
                 <option value=''>Year</option>
-                {Array.from(Array(121).keys())
-                  .reverse()
-                  .map((el) => (
-                    <option key={el} className='bg-black' value={el + 1902}>
-                      {el + 1902}
-                    </option>
-                  ))}
+                {birthDate.month == 1 && birthDate.date == 29
+                  ? Array.from(Array(121).keys())
+                      .reverse()
+                      .map((el) => {
+                        if ((el + 1902) % 4 === 0) {
+                          return (
+                            <option
+                              key={el}
+                              className='bg-black'
+                              value={el + 1902}
+                            >
+                              {el + 1902}
+                            </option>
+                          );
+                        }
+                      })
+                  : Array.from(Array(121).keys())
+                      .reverse()
+                      .map((el) => (
+                        <option key={el} className='bg-black' value={el + 1902}>
+                          {el + 1902}
+                        </option>
+                      ))}
               </select>
             </div>
           </div>
@@ -266,7 +305,9 @@ const SigninScreen = () => {
             className='bg-transparent text-[#d9d9d9] px-2 w-full outline-none focus:border-[#1d9bf0] focus:border-2 border border-gray-700 rounded-md py-4'
             placeholder='DOB'
             type='text'
-            value={`${birthDate.date} ${birthDate.month} ${birthDate.year}`}
+            value={`${birthDate.date} ${
+              months[Number(birthDate.month) + 1][0]
+            } ${birthDate.year}`}
             disabled
           />
 
@@ -281,11 +322,12 @@ const SigninScreen = () => {
         </div>
       )}
       {page === 3 && (
-        <div className='bg-black flex flex-col items-start px-[2rem] w-full sm:w-[600px] h-5/6 rounded-xl py-[1rem]'>
+        <div className='relative bg-black flex flex-col items-start px-[2rem] w-full sm:w-[600px] h-5/6 rounded-xl py-[1rem]'>
           <div className='absolute w-8 h-8 hover:bg-[#d9d9d9] hover:bg-opacity-10 duration-200 rounded-full flex items-center justify-center top-3 left-3 cursor-pointer'>
             <ArrowLeftIcon
               onClick={() => {
                 setPage(2);
+                setT2(false);
               }}
               className='text-white h-5'
             />
@@ -294,6 +336,11 @@ const SigninScreen = () => {
             src='https://rb.gy/ogau5a'
             className='mx-auto opacity-80 h-8 w-8'
           />
+          {err && (
+            <div className='text-red-500 my-4 border rounded-full text-center py-2 w-full bg-[#8a202041] border-red-500'>
+              {err}
+            </div>
+          )}
           <div className='text-2xl mt-5 font-bold text-[#d9d9d9]'>
             Set Password
           </div>
@@ -369,12 +416,6 @@ const SigninScreen = () => {
           >
             skip
           </button>
-
-          {/* <div className='m-auto loadingio-spinner-rolling-y80xigl92r'>
-            <div class='ldio-237ye6airl6'>
-              <div></div>
-            </div>
-          </div> */}
         </div>
       )}
     </div>

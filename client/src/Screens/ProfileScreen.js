@@ -35,14 +35,14 @@ const ProfileScreen = () => {
           <img
             className='w-full object-cover'
             alt=''
-            src='https://images2.alphacoders.com/106/thumbbig-106780.webp'
+            src='https://pbs.twimg.com/profile_banners/1150840261129302017/1588709742/1500x500'
           />
         </div>
         <div className='relative flex justify-end'>
           <div className='absolute -top-16 h-[140px] w-[140px] rounded-full overflow-hidden border-4 border-black left-4'>
             <img
               className='object-cover h-full w-full'
-              src='https://images2.alphacoders.com/106/thumbbig-106780.webp'
+              src='https://pbs.twimg.com/profile_images/1271170759897931776/ytxUlccB_400x400.jpg'
               alt=''
             />
           </div>
@@ -54,10 +54,13 @@ const ProfileScreen = () => {
         </div>
         <div className='flex mt-4 px-4 flex-col'>
           <div className='flex flex-col'>
-            <div className='font-bold text-[#d9d9d9] text-xl'>Light</div>
-            <div className='text-[#6e767d]'>@Arpitba2919671</div>
+            <div className='font-bold text-[#d9d9d9] text-xl'>Arpi bansal</div>
+            <div className='text-[#6e767d]'>@Arpit_kb16</div>
           </div>
-          <div className='text-[#d9d9d9] pt-2 pb-1'>its my bio</div>
+          <div className='text-[#d9d9d9] pt-2 pb-1'>
+            Student<div className='text-[#d9d9d9]'>NIT Warangal</div>
+          </div>
+
           <div className='flex items-center flex-row space-x-3 text-[#6e767d]'>
             <div>
               <LocationMarkerIcon className='h-5 inline mr-1' />
@@ -74,10 +77,10 @@ const ProfileScreen = () => {
           </div>
           <div className='flex space-x-5 py-2 text-[#d9d9d9]'>
             <div>
-              23 <span className='text-[#6e767d]'>Following</span>
+              66 <span className='text-[#6e767d]'>Following</span>
             </div>
             <div>
-              542 <span className='text-[#6e767d]'>Followers</span>
+              12 <span className='text-[#6e767d]'>Followers</span>
             </div>
           </div>
         </div>
