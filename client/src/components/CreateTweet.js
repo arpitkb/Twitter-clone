@@ -15,6 +15,7 @@ import { createPost } from "../redux/actions/post";
 const CreateTweet = () => {
   const dispatch = useDispatch();
   const { loading, err } = useSelector((state) => state.createPost);
+  const { user } = useSelector((state) => state.auth);
 
   const [selectedImages, setSelectedImages] = useState([]);
   const [showEmojis, setShowEmojis] = useState(false);
@@ -64,10 +65,7 @@ const CreateTweet = () => {
         </div>
       )}
       <div className={`border-b border-gray-700 p-3 flex space-x-3`}>
-        <img
-          className='w-12 h-12 rounded-full'
-          src='https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-High-Quality-Image.png'
-        />
+        <img className='w-11 h-11 rounded-full' src={user && user.profilePic} />
 
         <div className='w-full divide-y divide-gray-700'>
           <div className={`mt-3 ${selectedImages.length > 0 && "mb-5"}`}>

@@ -12,6 +12,7 @@ const cookieParser = require("cookie-parser");
 //importing routes
 const authRoutes = require("./routes/auth");
 const postRoutes = require("./routes/post");
+const userRoutes = require("./routes/user");
 
 // security middlewares
 // import mongoSanitize from "express-mongo-sanitize";
@@ -52,6 +53,7 @@ app.use(cookieParser());
 // app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/post", postRoutes);
+app.use("/api/user", userRoutes);
 // app.use("/api/orders", orderRoutes);
 app.get("/", (req, res) => {
   const id = 5;

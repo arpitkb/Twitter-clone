@@ -4,7 +4,6 @@ const PostSchema = mongoose.Schema(
   {
     content: {
       type: String,
-      required: [true, "Please add some content"],
       trim: true,
     },
     author: {
@@ -24,6 +23,18 @@ const PostSchema = mongoose.Schema(
         },
         message: () => `Cannot post more than 4 images`,
       },
+    },
+    likes: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
+      default: [],
+    },
+    retweetUsers: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
+      default: [],
+    },
+    retweetPost: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "post",
     },
   },
   {

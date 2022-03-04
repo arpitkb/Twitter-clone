@@ -36,9 +36,43 @@ const userSchema = mongoose.Schema(
       type: Date,
       required: [true, "D.O.B is required"],
     },
-
     resetPasswordToken: String,
     resetPasswordExpire: Date,
+    likes: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "post" }],
+      default: [],
+    },
+    bio: {
+      type: String,
+      maxLength: [30, "description must be less than 30 letters"],
+    },
+    location: {
+      type: String,
+      maxLength: [20, "location must be less than or equal to 20 chars"],
+    },
+    website: {
+      type: String,
+    },
+    profilePic: {
+      type: String,
+      default:
+        "https://hips.hearstapps.com/digitalspyuk.cdnds.net/17/13/1490989105-twitter1.jpg?resize=768:*",
+    },
+    coverPic: {
+      type: String,
+    },
+    followers: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
+      default: [],
+    },
+    following: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
+      default: [],
+    },
+    retweets: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "post" }],
+      default: [],
+    },
   },
   {
     timestamps: true,

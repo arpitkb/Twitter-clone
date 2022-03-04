@@ -10,22 +10,26 @@ import ProfileScreen from "./Screens/ProfileScreen";
 import OpeningScreen from "./Screens/OpeningScreen";
 import PrivateRoute from "./components/Routing/PrivateRoute";
 import { Cookies } from "react-cookie";
-import { logoutUser } from "./redux/actions/auth";
+import { logoutUser, loadUser } from "./redux/actions/auth";
+import { useDispatch } from "react-redux";
+import Widgets from "./components/Widgets";
 
 function App() {
   const cookies = new Cookies();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!cookies.get("_token")) {
       logoutUser();
     }
+    dispatch(loadUser());
   }, []);
 
   const location = useLocation();
   // console.log(location);
   const qrs = location.search.split("?")[1];
   return (
-    <div className='b min-h-screen flex max-w-1500 mx-auto'>
+    <div className='min-h-screen flex max-w-screen justify-center'>
       {location.pathname !== "/login" &&
         location.pathname !== "/register" &&
         location.pathname !== "/" && <SideBar />}
@@ -43,26 +47,29 @@ function App() {
           element={<PrivateRoute component={<HomeScreen />} />}
         />
         <Route
-          path='/:userId'
+          path='/:username'
           element={<PrivateRoute component={<ProfileScreen />} />}
         />
         <Route
-          path='/:userId/with_replies'
+          path='/:username/with_replies'
           element={<PrivateRoute component={<ProfileScreen />} />}
         />
         <Route
-          path='/:userId/media'
+          path='/:username/media'
           element={<PrivateRoute component={<ProfileScreen />} />}
         />
         <Route
-          path='/:userId/likes'
+          path='/:username/likes'
           element={<PrivateRoute component={<ProfileScreen />} />}
         />
         <Route
-          path='/:userId/status/:tweetId'
+          path='/:username/status/:tweetId'
           element={<PrivateRoute component={<StatusScreen />} />}
         />
       </Routes>
+      {location.pathname !== "/login" &&
+        location.pathname !== "/register" &&
+        location.pathname !== "/" && <Widgets />}
     </div>
   );
 }

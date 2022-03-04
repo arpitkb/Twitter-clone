@@ -17,22 +17,32 @@ import React, { useState } from "react";
 import Modal from "./Modal";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setreplymodal } from "../redux/actions/modal";
-import Moment from "react-moment";
+import { likePost, toggleRetweet } from "../redux/actions/post";
 import { dateDisplayPost, timeDateDisplay } from "../utils/datesAndTime";
 
 const Post = ({ postPage, post }) => {
-  let liked = false;
   let comments = 3;
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { isReply } = useSelector((state) => state.modal);
+  const { user } = useSelector((state) => state.auth);
   const [openModal, setOpenModal] = useState(false);
+  const isRetweeted = !post.content;
+  let rb = post.author.username;
+  let selfId = post._id;
+  if (isRetweeted) post = post.retweetPost;
+  let isLikedByMe = user.likes.includes(post._id);
+  let isRetweetedByMe = user.retweets.includes(post._id);
 
   return (
     <>
+      <div className='px-3 ml-11 text-sm font-bold pt-3 text-[#6e767d]'>
+        {isRetweeted
+          ? `${rb === user.username ? "You" : `@${rb}`} Retweeted`
+          : ""}
+      </div>
+      {/* {isRetweeted && <div className='px-3 pt-3'>@{rb} retweeted</div>} */}
       <div
-        className='p-3 flex cursor-pointer border-b border-gray-700'
+        className='px-3 pb-3 flex cursor-pointer border-b border-gray-700'
         onClick={() => {
           if (!postPage)
             navigate(`/${post.author.username}/status/${post._id}`);
@@ -40,15 +50,15 @@ const Post = ({ postPage, post }) => {
       >
         {!postPage && (
           <img
-            className='w-12 h-12 rounded-full mr-3'
-            src='https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-High-Quality-Image.png'
+            className='w-11 h-11 rounded-full mr-3'
+            src={post.author.profilePic}
           />
         )}
         <div className='flex flex-col space-y-2 w-full'>
           <div className={`flex ${!postPage && "justify-between"}`}>
             {postPage && (
               <img
-                src='https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-High-Quality-Image.png'
+                src={post.author.profilePic}
                 alt='Profile Pic'
                 className='h-11 w-11 rounded-full mr-3'
               />
@@ -56,6 +66,10 @@ const Post = ({ postPage, post }) => {
             <div className='text-[#6e767d]'>
               <div className='inline-block group'>
                 <h4
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/${post.author.username}`);
+                  }}
                   className={`font-bold text-[15px] sm:text-base text-[#d9d9d9] group-hover:underline ${
                     !postPage && "inline-block"
                   }`}
@@ -166,52 +180,77 @@ const Post = ({ postPage, post }) => {
               )}
             </div>
 
-            <div className='flex items-center space-x-1 group'>
-              <div className='icon group-hover:bg-[#19CF86] group-hover:bg-opacity-10'>
-                <svg
-                  className='h-6 w-6 fill-[#6e767d] group-hover:fill-[#19CF86]'
-                  xmlns='http://www.w3.org/2000/svg'
-                  viewBox='0 0 75 72'
-                >
-                  <path
-                    stroke='black'
-                    strokeWidth='2'
-                    d='M70.676 36.644C70.166 35.636 69.13 35 68 35h-7V19c0-2.21-1.79-4-4-4H34c-2.21 0-4 1.79-4 4s1.79 4 4 4h18c.552 0 .998.446 1 .998V35h-7c-1.13 0-2.165.636-2.676 1.644-.51 1.01-.412 2.22.257 3.13l11 15C55.148 55.545 56.046 56 57 56s1.855-.455 2.42-1.226l11-15c.668-.912.767-2.122.256-3.13zM40 48H22c-.54 0-.97-.427-.992-.96L21 36h7c1.13 0 2.166-.636 2.677-1.644.51-1.01.412-2.22-.257-3.13l-11-15C18.854 15.455 17.956 15 17 15s-1.854.455-2.42 1.226l-11 15c-.667.912-.767 2.122-.255 3.13C3.835 35.365 4.87 36 6 36h7l.012 16.003c.002 2.208 1.792 3.997 4 3.997h22.99c2.208 0 4-1.79 4-4s-1.792-4-4-4z'
-                  />
-                </svg>
-              </div>
-              <span className='group-hover:text-[#19CF86] text-sm'>2</span>
-            </div>
-
-            {2 === 2 ? (
+            {post.author._id === user._id ? (
               <div className='flex items-center space-x-1 group'>
                 <div className='icon group-hover:bg-red-600/10'>
                   <TrashIcon className='h-5 group-hover:text-red-600' />
                 </div>
               </div>
             ) : (
-              <div className='flex items-center space-x-1 group'>
-                <div className='icon group-hover:bg-green-500/10'>
-                  <SwitchHorizontalIcon className='h-5 group-hover:text-green-500' />
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  dispatch(
+                    toggleRetweet(
+                      post._id,
+                      user._id,
+                      isRetweeted ? selfId : null,
+                      isRetweetedByMe,
+                      postPage
+                    )
+                  );
+                  console.log("retweet");
+                }}
+                className='flex items-center space-x-1 group'
+              >
+                <div
+                  className={`icon group-hover:bg-[#19CF86] group-hover:bg-opacity-10`}
+                >
+                  <svg
+                    className={`h-6 w-6 ${
+                      isRetweetedByMe ? "fill-[#19CF86]" : " fill-[#6e767d]"
+                    } group-hover:fill-[#19CF86]`}
+                    xmlns='http://www.w3.org/2000/svg'
+                    viewBox='0 0 75 72'
+                  >
+                    <path
+                      stroke='black'
+                      strokeWidth='2'
+                      d='M70.676 36.644C70.166 35.636 69.13 35 68 35h-7V19c0-2.21-1.79-4-4-4H34c-2.21 0-4 1.79-4 4s1.79 4 4 4h18c.552 0 .998.446 1 .998V35h-7c-1.13 0-2.165.636-2.676 1.644-.51 1.01-.412 2.22.257 3.13l11 15C55.148 55.545 56.046 56 57 56s1.855-.455 2.42-1.226l11-15c.668-.912.767-2.122.256-3.13zM40 48H22c-.54 0-.97-.427-.992-.96L21 36h7c1.13 0 2.166-.636 2.677-1.644.51-1.01.412-2.22-.257-3.13l-11-15C18.854 15.455 17.956 15 17 15s-1.854.455-2.42 1.226l-11 15c-.667.912-.767 2.122-.255 3.13C3.835 35.365 4.87 36 6 36h7l.012 16.003c.002 2.208 1.792 3.997 4 3.997h22.99c2.208 0 4-1.79 4-4s-1.792-4-4-4z'
+                    />
+                  </svg>
                 </div>
+                <span
+                  className={`group-hover:text-[#19CF86] ${
+                    isRetweetedByMe ? "text-[#19CF86]" : ""
+                  } text-sm`}
+                >
+                  {post.retweetUsers.length > 0 && post.retweetUsers.length}
+                </span>
               </div>
             )}
 
-            <div className='flex items-center space-x-1 group'>
-              <div className='icon group-hover:bg-pink-600/10'>
-                {liked ? (
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                dispatch(likePost(post._id, user._id, isLikedByMe, postPage));
+              }}
+              className='flex items-center space-x-1 group'
+            >
+              <div className='icon active:animate-ping-slow group-hover:bg-pink-600/10'>
+                {isLikedByMe ? (
                   <HeartIconFilled className='h-5 text-pink-600' />
                 ) : (
                   <HeartIcon className='h-5 group-hover:text-pink-600' />
                 )}
               </div>
-              {2 > 0 && (
+              {post.likes.length > 0 && (
                 <span
                   className={`group-hover:text-pink-600 text-sm ${
-                    liked && "text-pink-600"
+                    isLikedByMe && "text-pink-600"
                   }`}
                 >
-                  33
+                  {post.likes.length}
                 </span>
               )}
             </div>

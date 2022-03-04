@@ -13,8 +13,8 @@ const OpeningScreen = () => {
   }, [user]);
 
   return (
-    <div className='h-screen w-screen flex'>
-      <div className='h-screen overflow-hidden w-[830px] hidden lg:block'>
+    <div className='h-screen w-screen flex  overflow-hidden'>
+      <div className='overflow-hidden w-[830px] hidden lg:block'>
         <img
           className='object-cover h-screen w-full object-center'
           src='https://abs.twimg.com/sticky/illustrations/lohp_en_1302x955.png'
@@ -25,7 +25,7 @@ const OpeningScreen = () => {
         <div className='m-9'>
           <img src='https://rb.gy/ogau5a' className='h-11 opacity-80' />
         </div>
-        <div className='text-[#d9d9d9] text-7xl font-extrabold m-9'>
+        <div className='text-[#d9d9d9] text-7xl font-extrabold mx-9 my-5'>
           Happening now
         </div>
         <div className='text-[#d9d9d9] text-3xl tracking-wider font-extrabold m-9'>

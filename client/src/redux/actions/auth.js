@@ -7,10 +7,9 @@ import {
   LOGIN_SUCC,
   LOGOUT,
   CLEAR_ALL,
+  LOAD_USER,
 } from "./types";
 import api from "../../utils/api";
-
-import axios from "axios";
 
 export const logoutUser = () => (dispatch) => {
   localStorage.removeItem("twitter_user");
@@ -20,6 +19,20 @@ export const logoutUser = () => (dispatch) => {
   dispatch({
     type: CLEAR_ALL,
   });
+};
+
+export const loadUser = () => async (dispatch) => {
+  try {
+    const { data } = await api.get("/api/auth/me");
+    dispatch({
+      type: LOAD_USER,
+      payload: data,
+    });
+
+    localStorage.setItem("twitter_user", JSON.stringify(data));
+  } catch (err) {
+    // do nothing
+  }
 };
 
 export const loginUser =

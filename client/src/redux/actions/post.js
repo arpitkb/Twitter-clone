@@ -8,6 +8,12 @@ import {
   GET_POST_ERR,
   GET_POST_REQ,
   GET_POST_SUCC,
+  LIKE_POST_ERR,
+  LIKE_POST_SUCC,
+  LIKE_POST_SUCC2,
+  RETWEET_POST_ERR,
+  RETWEET_POST_SUCC,
+  RETWEET_POST_SUCC2,
 } from "./types";
 import api from "../../utils/api";
 
@@ -78,3 +84,73 @@ export const getPost = (id) => async (dispatch) => {
     });
   }
 };
+
+export const likePost = (postId, userId, ilbm, post) => async (dispatch) => {
+  try {
+    if (post) {
+      dispatch({
+        type: LIKE_POST_SUCC2,
+        payload: {
+          postId,
+          userId,
+          ilbm,
+        },
+      });
+    } else {
+      dispatch({
+        type: LIKE_POST_SUCC,
+        payload: {
+          postId,
+          userId,
+          ilbm,
+        },
+      });
+    }
+    await api.put(`/api/post/${postId}/toggleLike`);
+  } catch (err) {
+    console.log(err);
+    dispatch({
+      type: LIKE_POST_ERR,
+      payload:
+        err.response && err.response.data.msg
+          ? err.response.data.msg
+          : err.message,
+    });
+  }
+};
+
+export const toggleRetweet =
+  (postId, userId, selfId, ir, post) => async (dispatch) => {
+    try {
+      await api.post(`/api/post/${postId}/toggleRetweet`);
+      if (post) {
+        dispatch({
+          type: RETWEET_POST_SUCC2,
+          payload: {
+            postId,
+            userId,
+            selfId,
+            ir,
+          },
+        });
+      } else {
+        dispatch({
+          type: RETWEET_POST_SUCC,
+          payload: {
+            postId,
+            userId,
+            selfId,
+            ir,
+          },
+        });
+      }
+    } catch (err) {
+      dispatch({
+        type: RETWEET_POST_ERR,
+        payload:
+          err.response && err.response.data.msg
+            ? err.response.data.msg
+            : err.message,
+      });
+    }
+  };

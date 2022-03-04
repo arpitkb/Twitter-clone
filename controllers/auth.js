@@ -1,22 +1,22 @@
 const User = require("../models/User");
-const Profile = require("../models/Profile");
 const ErrorResponse = require("../utils/ErrorResponse");
 const wrapAsync = require("../utils/wrapAsync");
 const randomize = require("randomatic");
+const Post = require("../models/Post");
 
 // @desc        Register a user
 // @route       POST /api/auth/register
 // @access      Public
 module.exports.registerUser = wrapAsync(async (req, res, next) => {
   const { name, email, password, dob } = req.body;
-  let newuser = await User.findOne({ email });
-  if (newuser) {
+  let user = await User.findOne({ email });
+  if (user) {
     return next(new ErrorResponse("Email already in use", 400));
   }
 
   const username = email.split("@")[0] + randomize("a0", 5);
 
-  newuser = await User.create({
+  user = await User.create({
     name,
     email,
     password,
@@ -24,14 +24,10 @@ module.exports.registerUser = wrapAsync(async (req, res, next) => {
     username,
   });
 
-  await Profile.create({
-    user: newuser.id,
-  });
+  const token = user.getJWT();
+  user.password = null;
 
-  const token = newuser.getJWT();
-  newuser.password = null;
-
-  res.status(200).json({ user: newuser, token });
+  res.status(200).json({ user, token });
 });
 
 // @desc        Login a user
@@ -74,4 +70,13 @@ module.exports.loginUser = wrapAsync(async (req, res, next) => {
 module.exports.getLoggedinUser = wrapAsync(async (req, res, next) => {
   const user = await User.findById(req.user.id).select("-password");
   res.status(200).json(user);
+});
+
+// @desc        Delete all
+// @route       Delete /api/auth/all
+// @access      Private
+module.exports.deleteAll = wrapAsync(async (req, res, next) => {
+  // await User.deleteMany();
+  await Post.deleteMany();
+  res.status(200).json({ msg: "Deleted all" });
 });

@@ -10,6 +10,7 @@ export const LOGIN_ERR = "LOGIN_ERR";
 
 export const LOGOUT = "LOGOUT";
 export const CLEAR_ALL = "CLEAR_ALL";
+export const LOAD_USER = "LOAD_USER";
 
 export const CREATE_POST_REQ = "CREATE_POST_REQ";
 export const CREATE_POST_SUCC = "CREATE_POST_SUCC";
@@ -22,3 +23,26 @@ export const GET_ALL_POSTS_ERR = "GET_ALL_POSTS_ERR";
 export const GET_POST_REQ = "GET_POST_REQ";
 export const GET_POST_SUCC = "GET_POST_SUCC";
 export const GET_POST_ERR = "GET_POST_ERR";
+
+export const LIKE_POST_SUCC = "LIKE_POST_SUCC";
+export const LIKE_POST_ERR = "LIKE_POST_ERR";
+
+export const LIKE_POST_SUCC2 = "LIKE_POST_SUCC2";
+
+export const RETWEET_POST_ERR = "RETWEET_POST_ERR";
+export const RETWEET_POST_SUCC = "RETWEET_POST_SUCC";
+export const RETWEET_POST_SUCC2 = "RETWEET_POST_SUCC2";
+
+export const GET_USER_PROFILE_REQ = "GET_USER_PROFILE_REQ";
+export const GET_USER_PROFILE_ERR = "GET_USER_PROFILE_ERR";
+export const GET_USER_PROFILE_SUCC = "GET_USER_PROFILE_SUCC";
+
+export const GET_USER_POSTS_SUCC = "GET_USER_POSTS_SUCC";
+export const GET_USER_POSTS_ERR = "GET_USER_POSTS_ERR";
+export const GET_USER_POSTS_REQ = "GET_USER_POSTS_REQ";
+
+export const TOGGLE_FOLLOW_SUCC = "TOGGLE_FOLLOW_SUCC";
+
+export const GET_USERS_BY_KEYWORD_REQ = 'GUBKR'
+export const GET_USERS_BY_KEYWORD_SUCC = 'GUBKS'
+export const GET_USERS_BY_KEYWORD_ERR = 'GUBKE'

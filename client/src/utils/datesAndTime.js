@@ -1,14 +1,13 @@
 export const dateDisplayPost = (mongoDate) => {
   let date = new Date(mongoDate);
-  let res = "";
   let diff = Date.now() - date;
   diff = diff / 1000;
   if (diff < 5) return "Just now";
-  if (diff < 60) return `${Math.ceil(diff)}s`;
+  if (diff < 60) return `${Math.floor(diff)}s`;
   diff = diff / 60;
-  if (diff < 60) return `${Math.ceil(diff)}m`;
+  if (diff < 60) return `${Math.floor(diff)}m`;
   diff = diff / 60;
-  if (diff < 24) return `${Math.ceil(diff)}h`;
+  if (diff < 24) return `${Math.floor(diff)}h`;
 
   const arr = date.toDateString().split(" ");
   const arr2 = new Date().toDateString().split(" ");

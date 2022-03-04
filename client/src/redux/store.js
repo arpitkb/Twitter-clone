@@ -12,6 +12,8 @@ const userFromLocal = localStorage.getItem("twitter_user")
   ? JSON.parse(localStorage.getItem("twitter_user"))
   : null;
 
+// console.log(userFromLocal);
+
 const initialState = {
   modal: {
     isReply: false,
