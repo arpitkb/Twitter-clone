@@ -20,7 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { likePost, toggleRetweet } from "../redux/actions/post";
 import { dateDisplayPost, timeDateDisplay } from "../utils/datesAndTime";
 
-const Post = ({ postPage, post }) => {
+const Post = ({ postPage, post,str }) => {
   let comments = 3;
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -42,7 +42,7 @@ const Post = ({ postPage, post }) => {
       </div>
       {/* {isRetweeted && <div className='px-3 pt-3'>@{rb} retweeted</div>} */}
       <div
-        className='px-3 pb-3 flex cursor-pointer border-b border-gray-700'
+        className={`px-3 pb-3 flex cursor-pointer ${!str && 'border-b'} border-gray-700`}
         onClick={() => {
           if (!postPage)
             navigate(`/${post.author.username}/status/${post._id}`);
@@ -90,6 +90,11 @@ const Post = ({ postPage, post }) => {
                   {dateDisplayPost(post.createdAt)}
                 </span>
               )}
+              {!postPage && post.replyTo && <div className='text-[#6e767d]'>Replying to <span onClick={(e)=>{
+                e.stopPropagation()
+                navigate(`/${post.replyTo.author.username}`)
+              }} className='text-[#1d9bf0] hover:underline'>@{post.replyTo.author.username}</span></div>}
+
               {!postPage && (
                 <p className='text-[#d9d9d9] text-[15px] sm:text-base mt-0.5'>
                   {post.content}
@@ -100,6 +105,10 @@ const Post = ({ postPage, post }) => {
               <DotsHorizontalIcon className='h-5 text-[#6e767d] group-hover:text-[#1d9bf0]' />
             </div>
           </div>
+          {postPage && post.replyTo && <div className='text-[#6e767d]'>Replying to <span onClick={(e)=>{
+                e.stopPropagation()
+                navigate(`/${post.replyTo.author.username}`)
+              }} className='text-[#1d9bf0] hover:underline'>@{post.replyTo.author.username}</span></div>}
           {postPage && (
             <p className='text-[#d9d9d9] mt-0.5 text-xl'>{post.content}</p>
           )}
@@ -196,7 +205,7 @@ const Post = ({ postPage, post }) => {
                       user._id,
                       isRetweeted ? selfId : null,
                       isRetweetedByMe,
-                      postPage
+                      str ? !postPage : postPage
                     )
                   );
                   console.log("retweet");
@@ -233,7 +242,7 @@ const Post = ({ postPage, post }) => {
             <div
               onClick={(e) => {
                 e.stopPropagation();
-                dispatch(likePost(post._id, user._id, isLikedByMe, postPage));
+                dispatch(likePost(post._id, user._id, isLikedByMe, str?!postPage : postPage));
               }}
               className='flex items-center space-x-1 group'
             >
@@ -269,6 +278,7 @@ const Post = ({ postPage, post }) => {
         </div>
       </div>
       <Modal
+        post={post}
         isOpen={openModal}
         closeModal={() => {
           setOpenModal(false);

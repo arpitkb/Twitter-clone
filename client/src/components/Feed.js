@@ -20,7 +20,7 @@ const Feed = ({ posts, loading }) => {
         </div>
       )}
       <div className='pb-72'>
-        {posts.length > 0 &&
+        {posts && posts.length > 0 &&
           posts.map((el) => <Post key={el._id} postPage={false} post={el} />)}
       </div>
     </div>

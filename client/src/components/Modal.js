@@ -10,24 +10,32 @@ import {
 
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 
+import { dateDisplayPost } from "../utils/datesAndTime";
 import "emoji-mart/css/emoji-mart.css";
 import { Picker } from "emoji-mart";
 import TextareaAutosize from "react-textarea-autosize";
-import { useDispatch } from "react-redux";
+import { useDispatch,useSelector } from "react-redux";
 import { setreplymodal } from "../redux/actions/modal";
+import { createReply } from "../redux/actions/post";
 
-function Modal({ isOpen, closeModal }) {
-  const [post, setPost] = useState();
+function Modal({ isOpen, closeModal,post }) {
+  // const [post, setPost] = useState();
   const [comment, setComment] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const [selectedImages, setSelectedImages] = useState([]);
+  const {user} = useSelector(state=>state.auth)
 
   const [showEmojis, setShowEmojis] = useState(false);
 
   const imagePickerRef = useRef();
+
+  const replyHandler = ()=>{
+    dispatch(createReply(comment, [],post._id))
+    closeModal()
+  }
 
   const imageAdd = (e) => {
     let images = [...e.target.files];
@@ -94,36 +102,32 @@ function Modal({ isOpen, closeModal }) {
                   <div className='text-[#6e767d] flex gap-x-3 relative'>
                     <span className='w-[1.75px] h-full  z-[-1] absolute left-5 top-[3rem] bg-gray-700' />
                     <img
-                      src='https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-High-Quality-Image.png'
+                      src={post.author.profilePic}
                       alt=''
                       className='h-11 w-11 rounded-full'
                     />
                     <div>
                       <div className='inline-block group'>
                         <h4 className='font-bold text-[#d9d9d9] inline-block text-[15px] sm:text-base'>
-                          {post?.username}Light
+                          {post.author.name}
                         </h4>
                         <span className='ml-1.5 text-sm sm:text-[15px]'>
-                          @{post?.tag} hayli
+                          @{post.author.username}
                         </span>
                       </div>{" "}
                       ·{" "}
                       <span className='hover:underline text-sm sm:text-[15px]'>
-                        Jan 9
+                        {dateDisplayPost(post.createdAt)}
                       </span>
                       <p className='text-[#d9d9d9] text-[15px] sm:text-base'>
-                        {post?.text}hahaha looool!! So you know there is this
-                        guy that is so hot ad smart that i want to make friends
-                        with but i don't know how to becaus so hot ad
-                        smartecause So you know there is this guy that is so hot
-                        ad sm
+                        {post.content}
                       </p>
                     </div>
                   </div>
 
                   <div className='mt-7 flex space-x-3 w-full'>
                     <img
-                      src='https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-High-Quality-Image.png'
+                      src={user.profilePic}
                       alt=''
                       className='h-11 w-11 rounded-full'
                     />
@@ -220,6 +224,7 @@ function Modal({ isOpen, closeModal }) {
                           type='submit'
                           // onClick={sendComment}
                           disabled={!comment.trim()}
+                          onClick={replyHandler}
                         >
                           Reply
                         </button>

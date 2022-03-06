@@ -87,7 +87,7 @@ const ProfileScreen = () => {
           </div>
         </div>
 
-        <div className='h-[210px] overflow-hidden'>
+        <div className={`h-[210px] overflow-hidden ${loading ? 'animate-pulse':''}`}>
           <img
             className='w-full object-cover'
             alt=''
@@ -99,7 +99,7 @@ const ProfileScreen = () => {
           />
         </div>
         <div className='relative flex justify-end'>
-          <div className='absolute -top-16 h-[140px] w-[140px] rounded-full overflow-hidden border-4 border-black left-4'>
+          <div className={`absolute z-52 -top-16 h-[140px] w-[140px] rounded-full overflow-hidden border-4 border-black left-4`}>
             <img
               className={`object-cover h-full w-full`}
               src={

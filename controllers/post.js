@@ -2,17 +2,23 @@ const User = require("../models/User");
 const ErrorResponse = require("../utils/ErrorResponse");
 const wrapAsync = require("../utils/wrapAsync");
 const Post = require("../models/Post");
+const {getPostsHelper} = require('../utils/functions')
 
 // @desc        Create a post
 // @route       POST /api/post
 // @access      Private
 module.exports.createPost = wrapAsync(async (req, res, next) => {
-  const { content, images } = req.body;
-  const post = await Post.create({
-    content,
-    images,
-    author: req.user,
-  });
+  const { content, images, replyTo } = req.body;
+
+  let postData = {content,images,author : req.user};
+
+  if(replyTo){
+    postData.replyTo = replyTo
+  }
+
+  let post = await Post.create(postData)
+  post = await getPostsHelper({_id : post._id});
+  post = post[0];
   res.status(201).json(post);
 });
 
@@ -20,26 +26,30 @@ module.exports.createPost = wrapAsync(async (req, res, next) => {
 // @route       GET /api/post
 // @access      Private
 module.exports.getPosts = wrapAsync(async (req, res, next) => {
-  let posts = await Post.find({
+  let posts = await getPostsHelper({
     $or: [{ author: req.user._id }, { author: { $in: req.user.following } }],
-  })
-    .populate("author", "name username profilePic")
-    .populate("retweetPost")
-    .sort("-createdAt");
-  posts = await User.populate(posts, { path: "retweetPost.author" });
-  // const posts = await Post.find().populate("author").sort("-createdAt");
+  });
   res.status(200).json(posts);
 });
+
 
 // @desc        Get Single Post by id
 // @route       GET /api/post/:id
 // @access      Private
 module.exports.getPostById = wrapAsync(async (req, res, next) => {
   const { id } = req.params;
-  const post = await Post.findById(id).populate("author");
-  if (!post) return next(new ErrorResponse("Post not found", 404));
-  res.status(200).json(post);
+  let post = await getPostsHelper({_id : id});
+  post=post[0];
+
+  let result = {post};
+  if(post.replyTo){
+    result.replyTo = post.replyTo;
+  }
+  result.replies = await getPostsHelper({replyTo:id})
+  res.status(200).json(result);
 });
+
+
 
 // @desc        like/unlike a post
 // @route       GET /api/post/:id/toggleLike

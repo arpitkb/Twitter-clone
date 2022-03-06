@@ -3,6 +3,10 @@ import {
   CREATE_POST_ERR,
   CREATE_POST_REQ,
   CREATE_POST_SUCC,
+  CREATE_REPLY_SUCC,
+  CREATE_REPLY_REQ,
+  CREATE_REPLY_ERR,
+  
   GET_ALL_POSTS_ERR,
   GET_ALL_POSTS_REQ,
   GET_ALL_POSTS_SUCC,
@@ -21,20 +25,25 @@ import {
 export const createPostReducer = (state = {}, action) => {
   const { type, payload } = action;
   switch (type) {
+    
+    case CREATE_REPLY_REQ:
     case CREATE_POST_REQ:
       return {
         loading: true,
       };
-    case CREATE_POST_SUCC: {
+    case CREATE_REPLY_SUCC:
+    case CREATE_POST_SUCC: 
       return {
         loading: false,
       };
-    }
-    case CREATE_POST_ERR: {
+    
+    case CREATE_REPLY_ERR: 
+    case CREATE_POST_ERR: 
       return {
         loading: false,
+        err : payload
       };
-    }
+    
     default:
       return state;
   }
@@ -80,6 +89,20 @@ export const postsReducer = (state = { posts: [] }, action) => {
           return el;
         }),
       };
+    case GET_POST_REQ:
+      return {
+        loading:true,
+      }
+    case GET_POST_SUCC:
+      return {
+        loading:false,
+        posts:payload.replies
+      }
+    case CREATE_REPLY_SUCC:
+      return {
+        ...state,
+        posts: [payload, ...state.posts],
+      };
     case RETWEET_POST_SUCC:
       return {
         ...state,
@@ -113,7 +136,7 @@ export const postReducer = (state = {}, action) => {
     case GET_POST_SUCC:
       return {
         loading: false,
-        post: payload,
+        post : [payload.post,payload.replyTo]
       };
     case GET_POST_ERR:
       return {
@@ -124,23 +147,53 @@ export const postReducer = (state = {}, action) => {
     case LIKE_POST_SUCC2:
       return {
         ...state,
-        post: {
-          ...state.post,
-          likes: payload.ilbm
-            ? state.post.likes.filter((el) => el !== payload.userId)
-            : [payload.userId, ...state.post.likes],
-        },
+        post: state.post.map((el) => {
+          if (el && el._id === payload.postId) {
+            if (payload.ilbm)
+              el.likes = el.likes.filter((el) => el !== payload.userId);
+            else el.likes.push(payload.userId);
+          }
+          return el;
+        }),
       };
     case RETWEET_POST_SUCC2:
       return {
         ...state,
-        post: {
-          ...state.post,
-          retweetUsers: payload.ir
-            ? state.post.retweetUsers.filter((el) => el !== payload.userId)
-            : [payload.userId, ...state.post.retweetUsers],
-        },
+        post: state.post.map((el) => {
+          if (el && el._id === payload.postId) {
+            if (payload.ir)
+              el.retweetUsers = el.retweetUsers.filter(
+                (e) => e !== payload.userId
+              );
+            else el.retweetUsers.push(payload.userId);
+          } else if (el && el._id === payload.selfId) {
+            el.retweetPost.retweetUsers = el.retweetPost.retweetUsers.filter(
+              (k) => k !== payload.userId
+            );
+          }
+          return el;
+        }),
       };
+    // case LIKE_POST_SUCC2:
+    //   return {
+    //     ...state,
+    //     main: {
+    //       ...state.post,
+    //       likes: payload.ilbm
+    //         ? state.post.likes.filter((el) => el !== payload.userId)
+    //         : [payload.userId, ...state.post.likes],
+    //     },
+    //   };
+    // case RETWEET_POST_SUCC2:
+    //   return {
+    //     ...state,
+    //     post: {
+    //       ...state.post,
+    //       retweetUsers: payload.ir
+    //         ? state.post.retweetUsers.filter((el) => el !== payload.userId)
+    //         : [payload.userId, ...state.post.retweetUsers],
+    //     },
+    //   };
     case CLEAR_ALL:
       return {};
     default:

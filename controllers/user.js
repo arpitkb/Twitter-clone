@@ -2,6 +2,7 @@ const User = require("../models/User");
 const ErrorResponse = require("../utils/ErrorResponse");
 const wrapAsync = require("../utils/wrapAsync");
 const Post = require("../models/Post");
+const {getPostsHelper} = require('../utils/functions')
 
 // @desc        GET a user
 // @route       GET /api/user/:username
@@ -54,10 +55,7 @@ module.exports.toggleFollow = wrapAsync(async (req, res, next) => {
 // @access      Private
 module.exports.getUserPosts = wrapAsync(async (req, res, next) => {
   let user = await User.findOne({ username: req.params.username });
-  let posts = await Post.find({ author: user._id })
-    .populate("author", "name username profilePic")
-    .populate("retweetPost")
-    .sort("-createdAt");
+  let posts = await getPostsHelper({ author: user._id , replyTo:null})
 
   posts = await User.populate(posts, { path: "retweetPost.author" });
   res.status(200).json(posts);
@@ -69,9 +67,7 @@ module.exports.getUserPosts = wrapAsync(async (req, res, next) => {
 module.exports.getUserLikedPosts = wrapAsync(async (req, res, next) => {
   let user = await User.findOne({ username: req.params.username });
   if (!user) return next(new ErrorResponse("User not found", 404));
-  let posts = await Post.find({ _id: { $in: user.likes } })
-    .populate("author", "name username profilePic")
-    .sort("-createdAt");
+  let posts = await getPostsHelper({ _id: { $in: user.likes } })
   res.status(200).json(posts);
 });
 
@@ -90,8 +86,5 @@ module.exports.getUsersByKeyword = wrapAsync(async(req,res,next)=>{
   ]}
   let users = await User.find(qry)
 
-  if(!users || users.length===0){
-    return next(new ErrorResponse('No user found' , 404))
-  }
   res.status(200).json(users)
 })

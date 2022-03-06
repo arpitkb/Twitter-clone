@@ -47,7 +47,7 @@ export const loginUser =
         password,
         username,
       });
-      fn("_token", data.token, { path: "/", maxAge: 2 * 60 * 60 });
+      fn("_token", data.token, { path: "/", maxAge: 8 * 60 * 60 });
       localStorage.setItem("twitter_user", JSON.stringify(data.user));
 
       dispatch({
@@ -83,7 +83,7 @@ export const registerUser =
         type: SIGNUP_SUCC,
         payload: data.user,
       });
-      fn("_token", data.token, { path: "/", maxAge: 2 * 60 * 60 });
+      fn("_token", data.token, { path: "/", maxAge: 8 * 60 * 60 });
       localStorage.setItem("twitter_user", JSON.stringify(data.user));
     } catch (err) {
       dispatch({

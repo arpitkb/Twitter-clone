@@ -14,16 +14,19 @@ import {
   RETWEET_POST_ERR,
   RETWEET_POST_SUCC,
   RETWEET_POST_SUCC2,
+  CREATE_REPLY_REQ,
+  CREATE_REPLY_ERR,
+  CREATE_REPLY_SUCC,
 } from "./types";
 import api from "../../utils/api";
 
-export const createPost = (content, images) => async (dispatch) => {
+export const createPost = (content, images, replyTo=null) => async (dispatch) => {
   try {
     dispatch({
       type: CREATE_POST_REQ,
     });
 
-    const { data } = await api.post("/api/post", { content, images });
+    const { data } = await api.post("/api/post", { content, images, replyTo });
     // console.log(data);
 
     dispatch({
@@ -33,6 +36,30 @@ export const createPost = (content, images) => async (dispatch) => {
   } catch (err) {
     dispatch({
       type: CREATE_POST_ERR,
+      payload:
+        err.response && err.response.data.msg
+          ? err.response.data.msg
+          : err.message,
+    });
+  }
+};
+
+export const createReply = (content, images, replyTo=null) => async (dispatch) => {
+  try {
+    dispatch({
+      type: CREATE_REPLY_REQ,
+    });
+
+    const { data } = await api.post("/api/post", { content, images, replyTo });
+    // console.log(data);
+
+    dispatch({
+      type: CREATE_REPLY_SUCC,
+      payload: data,
+    });
+  } catch (err) {
+    dispatch({
+      type: CREATE_REPLY_ERR,
       payload:
         err.response && err.response.data.msg
           ? err.response.data.msg
