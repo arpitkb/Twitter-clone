@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import SideBarLink from "./SideBarLink";
 import { HomeIcon, CheckIcon } from "@heroicons/react/solid";
 import { Link, useNavigate } from "react-router-dom";
@@ -20,25 +20,24 @@ const SideBar = () => {
   const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
   const { user, loading } = useSelector((state) => state.auth);
-  const ref = useRef()
+  const ref = useRef();
 
   useEffect(() => {
-    const checkIfClickedOutside = e => {
+    const checkIfClickedOutside = (e) => {
       if (showPopupAccount && ref.current && !ref.current.contains(e.target)) {
-        setShowPopupAccount(false)
+        setShowPopupAccount(false);
       }
-    }
+    };
 
-    document.addEventListener("click", checkIfClickedOutside,true)
+    document.addEventListener("click", checkIfClickedOutside, true);
     return () => {
-      document.removeEventListener("click", checkIfClickedOutside,true)
-    }
-  }, [showPopupAccount])
+      document.removeEventListener("click", checkIfClickedOutside, true);
+    };
+  }, [showPopupAccount]);
 
   return (
-    <>
-      <div className='text-[#d9d9d9] bg-black hidden sm:flex items-center flex-col xl:items-start xl:w-[350px] p-2 h-full'
-      >
+    <div className='relative text-[#d9d9d9] hidden sm:flex items-center flex-col xl:items-start xl:w-[350px] px-2'>
+      <div className='sticky top-0 z-50 bg-black h-screen'>
         <Link
           to='/home'
           className='flex items-center justify-center w-14 hoverAnim p-0 xl:ml-16'
@@ -94,7 +93,10 @@ const SideBar = () => {
         </div>
         <div className='relative'>
           {showPopupAccount && (
-            <div ref={ref} className='drop-shadow-[0px_0px_7px_rgba(255,255,255,0.25)] h-44 w-72 sm:-left-12 xl:left-12 bg-black border-gray-700 absolute py-4 d-flex -top-64 border rounded-2xl animate-[appear_0.08s_ease-in]'>
+            <div
+              ref={ref}
+              className='drop-shadow-[0px_0px_7px_rgba(255,255,255,0.25)] h-44 w-72 sm:-left-12 xl:left-12 bg-black border-gray-700 absolute py-4 d-flex -top-64 border rounded-2xl animate-[appear_0.08s_ease-in]'
+            >
               <div className='flex items-center justify-around mb-2 px-3'>
                 <img
                   className='w-14 h-14 rounded-full xl:mr-2.5'
@@ -127,7 +129,7 @@ const SideBar = () => {
           setModalOpen(false);
         }}
       />
-    </>
+    </div>
   );
 };
 

@@ -11,16 +11,16 @@ const api = axios.create({
 
 // auto logount using intercept
 
-api.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    if (err.response.status === 401) {
-      store.dispatch({
-        type: LOGOUT,
-      });
-    }
-    return Promise.reject(err);
-  }
-);
+// api.interceptors.response.use(
+//   (res) => res,
+//   (err) => {
+//     if (err.response.status === 401) {
+//       store.dispatch({
+//         type: LOGOUT,
+//       });
+//     }
+//     return Promise.reject(err);
+//   }
+// );
 
 export default api;

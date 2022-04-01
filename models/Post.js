@@ -40,6 +40,10 @@ const PostSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "post",
     },
+    numComments: {
+      type: Number,
+      default: 0,
+    },
     // replies: {
     //   type: [{ type: mongoose.Schema.Types.ObjectId, ref: "post" }],
     //   default: [],

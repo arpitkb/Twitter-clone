@@ -1,14 +1,20 @@
 import React, { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { toggleFollow } from "../../redux/actions/user";
+import { deletePost } from "../../redux/actions/post";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
-const UnfollowModal = ({ isOpen, closeModal, username, _id }) => {
+const DeletePostModal = ({ isOpen, closeModal, id, redirectOnDelete }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const unfollowHandler = () => {
-    dispatch(toggleFollow(_id));
+    dispatch(deletePost(id));
+
     closeModal();
+    if (redirectOnDelete) {
+      navigate("/home");
+    }
   };
 
   return (
@@ -24,7 +30,7 @@ const UnfollowModal = ({ isOpen, closeModal, username, _id }) => {
             leaveFrom='opacity-100'
             leaveTo='opacity-0'
           >
-            <Dialog.Overlay className='fixed inset-0 bg-[#495763] bg-opacity-40 transition-opacity' />
+            <Dialog.Overlay className='fixed inset-0 bg-[#495763] bg-opacity-80 transition-opacity' />
           </Transition.Child>
 
           <Transition.Child
@@ -37,26 +43,23 @@ const UnfollowModal = ({ isOpen, closeModal, username, _id }) => {
             leaveFrom='opacity-100 translate-y-86 sm:scale-100'
             leaveTo='opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'
           >
-            <div className='m-auto mt-auto text-[#d9d9d9] bg-black rounded-2xl text-left shadow-xl transform transition-all max-w-[350px]'>
+            <div className='m-auto mt-auto text-[#d9d9d9] bg-black rounded-2xl text-left shadow-xl transform transition-all max-w-[330px]'>
               <div className='flex flex-col px-7 py-8 space-y-4'>
-                <img
-                  src='https://rb.gy/ogau5a'
-                  className='se self-center opacity-80 h-8 w-8'
-                />
-                <div className='text-2xl'>Unfollow @{username}?</div>
-                <div>
-                  Their Tweets will no longer show up in your home timeline. You
-                  can still view their profile.
+                <div className='text-xl font-bold'>Delete Tweet?</div>
+                <div className='text-[#6e767d] text-sm'>
+                  This can’t be undone and it will be removed from your profile,
+                  the timeline of any accounts that follow you, and from Twitter
+                  search results
                 </div>
                 <button
                   onClick={unfollowHandler}
-                  className='hover:bg-[#d9d9d9] bg-white py-2 text-black rounded-full'
+                  className='hover:bg-[#dc1e29] bg-[#f4212e] py-2 text-white rounded-full'
                 >
-                  Unfollow
+                  Delete
                 </button>
                 <button
                   onClick={closeModal}
-                  className='border rounded-full hover:bg-gray-500 hover:bg-opacity-10 py-2 border-gray-600'
+                  className='border rounded-full hover:bg-gray-400 hover:bg-opacity-10 py-2 border-gray-600'
                 >
                   Cancel
                 </button>
@@ -69,4 +72,4 @@ const UnfollowModal = ({ isOpen, closeModal, username, _id }) => {
   );
 };
 
-export default UnfollowModal;
+export default DeletePostModal;

@@ -13,6 +13,7 @@ const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/auth");
 const postRoutes = require("./routes/post");
 const userRoutes = require("./routes/user");
+const chatRoutes = require("./routes/chat");
 
 // security middlewares
 // import mongoSanitize from "express-mongo-sanitize";
@@ -50,11 +51,11 @@ app.use(cookieParser());
 // app.use(limiter);
 
 // all routes
-// app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/user", userRoutes);
-// app.use("/api/orders", orderRoutes);
+app.use("/api/chat", chatRoutes);
+
 app.get("/", (req, res) => {
   const id = 5;
   res.send(id);

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   PhotographIcon,
   XIcon,
@@ -21,6 +21,7 @@ const CreateTweet = () => {
   const [showEmojis, setShowEmojis] = useState(false);
   const [tweet, setTweet] = useState("");
   const imagePickerRef = useRef();
+  const ref1 = useRef();
 
   const imageAdd = (e) => {
     let images = [...e.target.files];
@@ -45,7 +46,6 @@ const CreateTweet = () => {
   };
 
   const addEmoji = (e) => {
-    console.log(e.native);
     setTweet(tweet + e.native);
   };
 
@@ -57,6 +57,23 @@ const CreateTweet = () => {
     });
   };
 
+  // removing emoji picker on outside click
+  useEffect(
+    (e) => {
+      const checkIfClickedOutside = (e) => {
+        if (showEmojis && ref1.current && !ref1.current.contains(e.target)) {
+          setShowEmojis(false);
+        }
+      };
+
+      document.addEventListener("click", checkIfClickedOutside, true);
+      return () => {
+        document.removeEventListener("click", checkIfClickedOutside, true);
+      };
+    },
+    [showEmojis]
+  );
+
   return (
     <>
       {err && (
@@ -64,7 +81,11 @@ const CreateTweet = () => {
           {err}
         </div>
       )}
-      <div className={`border-b border-gray-700 p-3 flex space-x-3`}>
+      <div
+        className={`border-b border-gray-700 p-3 flex space-x-3 ${
+          loading && "opacity-60"
+        }`}
+      >
         <img className='w-11 h-11 rounded-full' src={user && user.profilePic} />
 
         <div className='w-full divide-y divide-gray-700'>
@@ -76,7 +97,9 @@ const CreateTweet = () => {
               disabled={loading}
               placeholder="What's happening?"
               maxRows={30}
-              onChange={(e) => setTweet(e.target.value)}
+              onChange={(e) => {
+                setTweet(e.target.value);
+              }}
               className='bg-transparent pb-4 outline-none text-[#d9d9d9] text-xl placeholder-gray-500 tracking-wide w-full'
             />
             {selectedImages.length > 0 && (
@@ -132,7 +155,10 @@ const CreateTweet = () => {
 
                 <div
                   className='icon'
-                  onClick={() => setShowEmojis(!showEmojis)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowEmojis(!showEmojis);
+                  }}
                 >
                   <EmojiHappyIcon className='text-[#1d9bf0] h-[22px]' />
                 </div>
@@ -141,19 +167,20 @@ const CreateTweet = () => {
                   <CalendarIcon className='text-[#1d9bf0] h-[22px]' />
                 </div>
 
-                {showEmojis && (
-                  <Picker
-                    onSelect={addEmoji}
-                    style={{
-                      position: "absolute",
-                      marginTop: "465px",
-                      marginLeft: "-62px",
-                      borderRadius: "30px",
-                      maxWidth: "319px",
-                    }}
-                    theme='dark'
-                  />
-                )}
+                <div ref={ref1} className='absolute'>
+                  {showEmojis && (
+                    <Picker
+                      onSelect={addEmoji}
+                      style={{
+                        marginTop: "465px",
+                        marginLeft: "-62px",
+                        borderRadius: "30px",
+                        maxWidth: "319px",
+                      }}
+                      theme='dark'
+                    />
+                  )}
+                </div>
               </div>
               <button
                 className='bg-[#1d9bf0] mt-3 text-white rounded-full px-4 py-1.5 font-bold shadow-md hover:bg-[#1a8cd8] disabled:hover:bg-[#1d9bf0] disabled:opacity-50 disabled:cursor-default'

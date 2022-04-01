@@ -12,10 +12,11 @@ import TextareaAutosize from "react-textarea-autosize";
 import { useSelector, useDispatch } from "react-redux";
 import { createReply } from "../redux/actions/post";
 
-const CreateReply = ({id}) => {
+const CreateReply = ({ id }) => {
   const dispatch = useDispatch();
   const { loading, err } = useSelector((state) => state.createPost);
   const { user } = useSelector((state) => state.auth);
+  const [showOptions, setShowOptions] = useState(false);
 
   const [selectedImages, setSelectedImages] = useState([]);
   const [showEmojis, setShowEmojis] = useState(false);
@@ -75,8 +76,11 @@ const CreateReply = ({id}) => {
               value={tweet}
               minRows={1}
               disabled={loading}
-              placeholder="Tweet your Reply"
+              placeholder='Tweet your Reply'
               maxRows={30}
+              onFocus={() => {
+                setShowOptions(true);
+              }}
               onChange={(e) => setTweet(e.target.value)}
               className='bg-transparent pb-4 outline-none text-[#d9d9d9] text-xl placeholder-gray-500 tracking-wide w-full'
             />
@@ -105,7 +109,7 @@ const CreateReply = ({id}) => {
               </div>
             )}
           </div>
-          {!loading && (
+          {!loading && showOptions && (
             <div className='flex items-center justify-between'>
               <div className='flex items-center mt-3'>
                 <div
@@ -163,7 +167,7 @@ const CreateReply = ({id}) => {
                 }
                 onClick={sendPost}
               >
-                Tweet
+                Reply
               </button>
             </div>
           )}

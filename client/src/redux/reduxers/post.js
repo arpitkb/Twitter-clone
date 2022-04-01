@@ -6,7 +6,6 @@ import {
   CREATE_REPLY_SUCC,
   CREATE_REPLY_REQ,
   CREATE_REPLY_ERR,
-  
   GET_ALL_POSTS_ERR,
   GET_ALL_POSTS_REQ,
   GET_ALL_POSTS_SUCC,
@@ -20,30 +19,60 @@ import {
   LIKE_POST_SUCC2,
   RETWEET_POST_SUCC,
   RETWEET_POST_SUCC2,
+  DELETE_POST_SUCC,
+  DELETE_POST_REQ,
+  DELETE_POST_ERR,
+  COMMENT_NUMBER_HANDLER,
+  CLEAR_USER_POSTS,
 } from "../actions/types";
 
 export const createPostReducer = (state = {}, action) => {
   const { type, payload } = action;
   switch (type) {
-    
     case CREATE_REPLY_REQ:
     case CREATE_POST_REQ:
       return {
         loading: true,
       };
     case CREATE_REPLY_SUCC:
-    case CREATE_POST_SUCC: 
+    case CREATE_POST_SUCC:
       return {
         loading: false,
       };
-    
-    case CREATE_REPLY_ERR: 
-    case CREATE_POST_ERR: 
+    case CREATE_REPLY_ERR:
+    case CREATE_POST_ERR:
       return {
         loading: false,
-        err : payload
+        err: payload,
       };
-    
+
+    default:
+      return state;
+  }
+};
+
+export const userPostsReducer = (state = { userPosts: [] }, action) => {
+  const { type, payload } = action;
+  switch (type) {
+    case GET_USER_POSTS_REQ:
+      return {
+        ...state,
+        loading: true,
+        err: null,
+      };
+    case GET_USER_POSTS_SUCC:
+      return {
+        loading: false,
+        userPosts: payload,
+      };
+    case GET_USER_POSTS_ERR:
+      return {
+        err: payload,
+      };
+    case CLEAR_USER_POSTS:
+      return {
+        userPosts: [],
+      };
     default:
       return state;
   }
@@ -52,20 +81,18 @@ export const createPostReducer = (state = {}, action) => {
 export const postsReducer = (state = { posts: [] }, action) => {
   const { type, payload } = action;
   switch (type) {
-    case GET_USER_POSTS_REQ:
     case GET_ALL_POSTS_REQ:
       return {
         ...state,
         loading: true,
         err: null,
       };
-    case GET_USER_POSTS_SUCC:
     case GET_ALL_POSTS_SUCC:
       return {
         loading: false,
-        posts: payload,
+        posts: [...state.posts, ...payload.posts],
+        hasMore: payload.hasMore,
       };
-    case GET_USER_POSTS_ERR:
     case GET_ALL_POSTS_ERR:
       return {
         err: payload,
@@ -74,6 +101,16 @@ export const postsReducer = (state = { posts: [] }, action) => {
       return {
         ...state,
         posts: [payload, ...state.posts],
+      };
+    case DELETE_POST_SUCC:
+      return {
+        ...state,
+        posts: state.posts.filter((el) => el._id !== payload),
+      };
+    case DELETE_POST_ERR:
+      return {
+        ...state,
+        err: payload,
       };
     case CLEAR_ALL:
       return { posts: [] };
@@ -91,17 +128,27 @@ export const postsReducer = (state = { posts: [] }, action) => {
       };
     case GET_POST_REQ:
       return {
-        loading:true,
-      }
+        loading: true,
+      };
     case GET_POST_SUCC:
       return {
-        loading:false,
-        posts:payload.replies
-      }
+        loading: false,
+        posts: payload.replies,
+      };
     case CREATE_REPLY_SUCC:
       return {
         ...state,
         posts: [payload, ...state.posts],
+      };
+    case COMMENT_NUMBER_HANDLER:
+      return {
+        ...state,
+        posts: state.posts.map((el) => {
+          if (el._id === payload.id) {
+            el.numComments += payload.add;
+          }
+          return el;
+        }),
       };
     case RETWEET_POST_SUCC:
       return {
@@ -126,7 +173,7 @@ export const postsReducer = (state = { posts: [] }, action) => {
   }
 };
 
-export const postReducer = (state = {}, action) => {
+export const postReducer = (state = { post: [] }, action) => {
   const { type, payload } = action;
   switch (type) {
     case GET_POST_REQ:
@@ -136,14 +183,23 @@ export const postReducer = (state = {}, action) => {
     case GET_POST_SUCC:
       return {
         loading: false,
-        post : [payload.post,payload.replyTo]
+        post: [payload.post, payload.replyTo],
       };
     case GET_POST_ERR:
       return {
         loading: false,
         err: payload,
       };
-
+    case COMMENT_NUMBER_HANDLER:
+      return {
+        ...state,
+        post: state.post.map((el) => {
+          if (el && el._id === payload.id) {
+            el.numComments += payload.add;
+          }
+          return el;
+        }),
+      };
     case LIKE_POST_SUCC2:
       return {
         ...state,

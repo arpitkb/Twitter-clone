@@ -1,24 +1,35 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Post from "../components/Post";
 import { ArrowLeftIcon } from "@heroicons/react/outline";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllPosts, getPost } from "../redux/actions/post";
 import Loader from "../components/Loader";
-import CreateReply from '../components/CreateReply'
+import CreateReply from "../components/CreateReply";
 
 const StatusScreen = () => {
   const navigate = useNavigate();
-  // const [post, setPost] = useState(null);
+  const scrollToRef = useRef();
 
   const { tweetId } = useParams();
   const dispatch = useDispatch();
   const { loading, post, err } = useSelector((state) => state.post);
-  const { loading : repliesLoading, posts : replies, err: repliesErr } = useSelector((state) => state.posts);
+  const {
+    loading: repliesLoading,
+    posts: replies,
+    err: repliesErr,
+  } = useSelector((state) => state.posts);
 
   useEffect(() => {
     dispatch(getPost(tweetId));
   }, [tweetId]);
+
+  useEffect(() => {
+    if (scrollToRef.current) {
+      const y = scrollToRef.current.getBoundingClientRect().height;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+  }, [loading]);
 
   return (
     <div className='text-white flex-grow border-l border-r border-gray-700 md:min-w-[580px] max-w-[620px]'>
@@ -38,20 +49,46 @@ const StatusScreen = () => {
           <Loader />
         </div>
       )}
-      
 
-      {/* Post which is the parent (if exists) of original post */}
-      {post && post[1] && <Post str={true} postPage={false} post={post[1]} />}
-      
-      {/* Original Post */}
-      {post && post[0] && <Post postPage={true} post={post[0]} />}
+      <div>
+        {/* Post which is the parent (if exists) of original post */}
+        {!loading && (
+          <div className='relative' ref={scrollToRef}>
+            {post && post[1] && (
+              <Post
+                redirectOnDelete={true}
+                str={true}
+                postPage={false}
+                post={post[1]}
+              />
+            )}
+            <span className='w-[1.75px] h-full  z-[-1] absolute left-8 top-[3rem] bg-gray-700' />
+          </div>
+        )}
+
+        {/* Original Post */}
+        <div>
+          {!loading && post && post[0] && (
+            <Post redirectOnDelete={true} postPage={true} post={post[0]} />
+          )}
+        </div>
+      </div>
+      {!loading && err && (
+        <div className='mx-auto text-center mt-10 text-[#6e767d]'>
+          Hmm... {err}
+        </div>
+      )}
 
       {/* Reply form */}
       {post && post[0] && <CreateReply id={post[0]._id} />}
-        
-      <div className='pb-72'>
-        {replies && replies.map(rep=><Post post={rep} key={rep._id}/>)}
-        {!repliesLoading && !repliesErr && replies.length===0 && <div className='text-center text-[#d9d9d9] py-3 text-lg'>No comments</div>}
+
+      <div className='pb-[32rem]'>
+        {replies && replies.map((rep) => <Post post={rep} key={rep._id} />)}
+        {/* {!repliesLoading && !repliesErr && replies.length === 0 && (
+          <div className='text-center text-[#d9d9d9] py-3 text-lg'>
+            No comments
+          </div>
+        )} */}
       </div>
     </div>
   );

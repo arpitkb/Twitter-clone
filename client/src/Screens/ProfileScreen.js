@@ -12,6 +12,7 @@ import {
   Routes,
   Route,
   useParams,
+  Link,
 } from "react-router-dom";
 import Post from "../components/Post";
 import { useSelector, useDispatch } from "react-redux";
@@ -20,6 +21,8 @@ import {
   getUserPosts,
   getUserLikedPosts,
   toggleFollow,
+  getUserRepliedPosts,
+  clearUserPosts,
 } from "../redux/actions/user";
 import Loader from "../components/Loader";
 import UnfollowModal from "../components/modals/UnfollowModal";
@@ -32,8 +35,8 @@ const ProfileScreen = () => {
   const {
     loading: pLoading,
     err: pErr,
-    posts,
-  } = useSelector((state) => state.posts);
+    userPosts: posts,
+  } = useSelector((state) => state.userPosts);
   const { user } = useSelector((state) => state.auth);
   const { username } = useParams();
   const [btnText, setBtnText] = useState("Following");
@@ -47,7 +50,7 @@ const ProfileScreen = () => {
     if (location.pathname.split("/")[2] === "likes")
       dispatch(getUserLikedPosts(username));
     else if (location.pathname.split("/")[2] === "with_replies")
-      dispatch(getUserPosts(username));
+      dispatch(getUserRepliedPosts(username));
     else if (location.pathname.split("/")[2] === "media")
       dispatch(getUserLikedPosts(username));
     else dispatch(getUserPosts(username));
@@ -67,27 +70,41 @@ const ProfileScreen = () => {
         <div className='backdrop-blur-[12px] bg-black bg-opacity-60 flex justify-start items-center px-3 py-1 text-[#d9d9d9] sticky top-0 z-50'>
           <div
             onClick={() => {
-              navigate("/home");
+              navigate(-1);
             }}
             className='hoverAnim h-9 w-9 flex justify-center ms-0 items-center xl:px-0'
           >
             <ArrowLeftIcon className='h-5' />
           </div>
           <div className='flex flex-col justify-start mx-6'>
-            <div className='font-bold text-[#d9d9d9] text-xl'>
-              {profile ? profile.username : "Profile"}
-            </div>
-            <div className='tex text-sm mt-[-2px] text-gray-500'>
-              {profile ? (
-                <>{posts ? `${posts.length} Tweet` : "Tweet"}</>
-              ) : (
-                "No tweets found"
+            <div className={`font-bold text-[#d9d9d9] text-xl`}>
+              {loading && (
+                <span className='animate-pulse flex bg-slate-700 rounded-2xl h-6 w-24'></span>
               )}
+              {profile && !loading && profile.name}
+              {!profile && !loading && "Profile"}
+            </div>
+            <div
+              className={`text-xs ${
+                loading ? "mt-1" : "mt-[-4px]"
+              } text-gray-500 mb-1`}
+            >
+              {loading && (
+                <span className='animate-pulse flex bg-slate-700 rounded-2xl h-3 w-14'></span>
+              )}
+              {profile && !loading && (
+                <>{posts ? `${posts.length} Tweet` : "Tweet"}</>
+              )}
+              {!profile && !loading && "No tweets found"}
             </div>
           </div>
         </div>
 
-        <div className={`h-[210px] overflow-hidden ${loading ? 'animate-pulse':''}`}>
+        <div
+          className={`h-[210px] overflow-hidden ${
+            loading ? "animate-pulse" : ""
+          }`}
+        >
           <img
             className='w-full object-cover'
             alt=''
@@ -99,7 +116,9 @@ const ProfileScreen = () => {
           />
         </div>
         <div className='relative flex justify-end'>
-          <div className={`absolute z-52 -top-16 h-[140px] w-[140px] rounded-full overflow-hidden border-4 border-black left-4`}>
+          <div
+            className={`absolute z-52 -top-16 h-[140px] w-[140px] rounded-full overflow-hidden border-4 border-black left-4`}
+          >
             <img
               className={`object-cover h-full w-full`}
               src={
@@ -135,7 +154,7 @@ const ProfileScreen = () => {
                     ) : (
                       <button
                         onClick={followHandler}
-                        className='w-28 py-1 bg-white hover:cursor-pointer transition-all duration-200 hover:bg-gray-200 font-bold text-black rounded-full'
+                        className={`w-28 py-1 bg-white hover:cursor-pointer transition-all duration-200 hover:bg-gray-200 font-bold text-black rounded-full`}
                       >
                         Follow <i className='fas fa-user-plus'></i>
                       </button>
@@ -195,11 +214,21 @@ const ProfileScreen = () => {
             <div className='flex space-x-5 py-2 text-[#d9d9d9]'>
               <div>
                 {profile.following.length}{" "}
-                <span className='text-[#6e767d]'>Following</span>
+                <Link
+                  to={`/${username}/following`}
+                  className='hover:underline decoration-1'
+                >
+                  <span className='text-[#6e767d]'>Following</span>
+                </Link>
               </div>
               <div>
                 {profile.followers.length}{" "}
-                <span className='text-[#6e767d]'>Followers</span>
+                <Link
+                  to={`/${username}/followers`}
+                  className='hover:underline decoration-1'
+                >
+                  <span className='text-[#6e767d]'>Followers</span>
+                </Link>
               </div>
             </div>
           </div>
@@ -263,15 +292,8 @@ const ProfileScreen = () => {
               </div>
             </div>
             <div className='pb-72'>
-              {pLoading && (
-                <div className='text-center'>
-                  <Loader />
-                </div>
-              )}
               {!pLoading && pErr && <div>{pErr}</div>}
-              {!pLoading &&
-                posts &&
-                posts.map((el) => <Post key={el._id} post={el} />)}
+
               {!pLoading && posts && posts.length === 0 && (
                 <div className='flex justify-center'>
                   <div className='text-[#d9d9d9] text-[32px] font-bold px-24 mt-10'>
@@ -281,6 +303,14 @@ const ProfileScreen = () => {
                         : "No matching tweets yet"
                     }`}
                   </div>
+                </div>
+              )}
+              {!pLoading &&
+                posts &&
+                posts.map((el) => <Post key={el._id} post={el} />)}
+              {pLoading && (
+                <div className='text-center'>
+                  <Loader />
                 </div>
               )}
             </div>

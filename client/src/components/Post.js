@@ -19,13 +19,14 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { likePost, toggleRetweet } from "../redux/actions/post";
 import { dateDisplayPost, timeDateDisplay } from "../utils/datesAndTime";
+import DeletePostModal from "./modals/DeletePostModal";
 
-const Post = ({ postPage, post,str }) => {
-  let comments = 3;
+const Post = ({ postPage, post, str, redirectOnDelete = false, innerRef }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const [openModal, setOpenModal] = useState(false);
+  const [replyModal, setReplyModal] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
   const isRetweeted = !post.content;
   let rb = post.author.username;
   let selfId = post._id;
@@ -34,7 +35,7 @@ const Post = ({ postPage, post,str }) => {
   let isRetweetedByMe = user.retweets.includes(post._id);
 
   return (
-    <>
+    <div ref={innerRef}>
       <div className='px-3 ml-11 text-sm font-bold pt-3 text-[#6e767d]'>
         {isRetweeted
           ? `${rb === user.username ? "You" : `@${rb}`} Retweeted`
@@ -42,7 +43,9 @@ const Post = ({ postPage, post,str }) => {
       </div>
       {/* {isRetweeted && <div className='px-3 pt-3'>@{rb} retweeted</div>} */}
       <div
-        className={`px-3 pb-3 flex cursor-pointer ${!str && 'border-b'} border-gray-700`}
+        className={`px-3 pb-3 flex cursor-pointer ${
+          !str && "border-b"
+        } border-gray-700`}
         onClick={() => {
           if (!postPage)
             navigate(`/${post.author.username}/status/${post._id}`);
@@ -90,13 +93,22 @@ const Post = ({ postPage, post,str }) => {
                   {dateDisplayPost(post.createdAt)}
                 </span>
               )}
-              {!postPage && post.replyTo && <div className='text-[#6e767d]'>Replying to <span onClick={(e)=>{
-                e.stopPropagation()
-                navigate(`/${post.replyTo.author.username}`)
-              }} className='text-[#1d9bf0] hover:underline'>@{post.replyTo.author.username}</span></div>}
-
+              {!postPage && post.replyTo && (
+                <div className='text-[#6e767d]'>
+                  Replying to{" "}
+                  <span
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/${post.replyTo.author.username}`);
+                    }}
+                    className='text-[#1d9bf0] hover:underline'
+                  >
+                    @{post.replyTo.author.username}
+                  </span>
+                </div>
+              )}
               {!postPage && (
-                <p className='text-[#d9d9d9] text-[15px] sm:text-base mt-0.5'>
+                <p className='text-[#d9d9d9] whitespace-pre-line text-[15px] sm:text-base mt-0.5'>
                   {post.content}
                 </p>
               )}
@@ -105,10 +117,20 @@ const Post = ({ postPage, post,str }) => {
               <DotsHorizontalIcon className='h-5 text-[#6e767d] group-hover:text-[#1d9bf0]' />
             </div>
           </div>
-          {postPage && post.replyTo && <div className='text-[#6e767d]'>Replying to <span onClick={(e)=>{
-                e.stopPropagation()
-                navigate(`/${post.replyTo.author.username}`)
-              }} className='text-[#1d9bf0] hover:underline'>@{post.replyTo.author.username}</span></div>}
+          {postPage && post.replyTo && (
+            <div className='text-[#6e767d]'>
+              Replying to{" "}
+              <span
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/${post.replyTo.author.username}`);
+                }}
+                className='text-[#1d9bf0] hover:underline'
+              >
+                @{post.replyTo.author.username}
+              </span>
+            </div>
+          )}
           {postPage && (
             <p className='text-[#d9d9d9] mt-0.5 text-xl'>{post.content}</p>
           )}
@@ -177,20 +199,28 @@ const Post = ({ postPage, post,str }) => {
             <div
               onClick={(e) => {
                 e.stopPropagation();
-                setOpenModal(true);
+                setReplyModal(true);
               }}
               className='flex items-center space-x-1 group'
             >
               <div className='icon group-hover:bg-[#1d9bf0] group-hover:bg-opacity-10'>
                 <ChatIcon className='h-5 group-hover:text-[#1d9bf0]' />
               </div>
-              {!comments.length > 0 && (
-                <span className='group-hover:text-[#1d9bf0] text-sm'>2</span>
+              {post.numComments > 0 && (
+                <span className='group-hover:text-[#1d9bf0] text-sm'>
+                  {post.numComments}
+                </span>
               )}
             </div>
 
             {post.author._id === user._id ? (
-              <div className='flex items-center space-x-1 group'>
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteModal(true);
+                }}
+                className='flex items-center space-x-1 group'
+              >
                 <div className='icon group-hover:bg-red-600/10'>
                   <TrashIcon className='h-5 group-hover:text-red-600' />
                 </div>
@@ -242,7 +272,14 @@ const Post = ({ postPage, post,str }) => {
             <div
               onClick={(e) => {
                 e.stopPropagation();
-                dispatch(likePost(post._id, user._id, isLikedByMe, str?!postPage : postPage));
+                dispatch(
+                  likePost(
+                    post._id,
+                    user._id,
+                    isLikedByMe,
+                    str ? !postPage : postPage
+                  )
+                );
               }}
               className='flex items-center space-x-1 group'
             >
@@ -279,13 +316,21 @@ const Post = ({ postPage, post,str }) => {
       </div>
       <Modal
         post={post}
-        isOpen={openModal}
+        isOpen={replyModal}
         closeModal={() => {
-          setOpenModal(false);
+          setReplyModal(false);
+        }}
+      />
+      <DeletePostModal
+        id={post._id}
+        isOpen={deleteModal}
+        redirectOnDelete={redirectOnDelete}
+        closeModal={() => {
+          setDeleteModal(false);
         }}
       />
       {/* {isReply && <Modal />} */}
-    </>
+    </div>
   );
 };
 

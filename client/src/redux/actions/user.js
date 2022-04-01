@@ -9,7 +9,11 @@ import {
   LOAD_USER,
   GET_USERS_BY_KEYWORD_SUCC,
   GET_USERS_BY_KEYWORD_ERR,
-  GET_USERS_BY_KEYWORD_REQ
+  GET_USERS_BY_KEYWORD_REQ,
+  GET_USERS_ERR,
+  GET_USERS_REQ,
+  GET_USERS_SUCC,
+  CLEAR_USER_POSTS,
 } from "./types";
 
 import api from "../../utils/api";
@@ -35,6 +39,12 @@ export const getUserProfile = (username) => async (dispatch) => {
           : err.message,
     });
   }
+};
+
+export const clearUserPosts = () => async (dispatch) => {
+  dispatch({
+    type: CLEAR_USER_POSTS,
+  });
 };
 
 export const getUserPosts = (username) => async (dispatch) => {
@@ -82,6 +92,29 @@ export const getUserLikedPosts = (username) => async (dispatch) => {
   }
 };
 
+export const getUserRepliedPosts = (username) => async (dispatch) => {
+  try {
+    dispatch({
+      type: GET_USER_POSTS_REQ,
+    });
+
+    const { data } = await api.get(`/api/user/${username}/posts/reply`);
+
+    dispatch({
+      type: GET_USER_POSTS_SUCC,
+      payload: data,
+    });
+  } catch (err) {
+    dispatch({
+      type: GET_USER_POSTS_ERR,
+      payload:
+        err.response && err.response.data.msg
+          ? err.response.data.msg
+          : err.message,
+    });
+  }
+};
+
 export const toggleFollow = (id) => async (dispatch) => {
   try {
     dispatch({
@@ -94,22 +127,20 @@ export const toggleFollow = (id) => async (dispatch) => {
   }
 };
 
-
-export const getUsersByKeyword = (keyword)=>async dispatch=>{
+export const getUsersByKeyword = (keyword) => async (dispatch) => {
   try {
     dispatch({
-      type : GET_USERS_BY_KEYWORD_REQ
-    })
+      type: GET_USERS_BY_KEYWORD_REQ,
+    });
 
-    const {data} = await api.get(`/api/user?keyword=${keyword}`);
+    const { data } = await api.get(`/api/user?keyword=${keyword}`);
 
     dispatch({
-      type : GET_USERS_BY_KEYWORD_SUCC,
-      payload : data
-    })
-    
+      type: GET_USERS_BY_KEYWORD_SUCC,
+      payload: data,
+    });
   } catch (err) {
-     dispatch({
+    dispatch({
       type: GET_USERS_BY_KEYWORD_ERR,
       payload:
         err.response && err.response.data.msg
@@ -117,4 +148,27 @@ export const getUsersByKeyword = (keyword)=>async dispatch=>{
           : err.message,
     });
   }
-}
+};
+
+export const getUsers = (username, option) => async (dispatch) => {
+  try {
+    dispatch({
+      type: GET_USERS_REQ,
+    });
+
+    const { data } = await api.get(`/api/user/${username}/${option}`);
+
+    dispatch({
+      type: GET_USERS_SUCC,
+      payload: data,
+    });
+  } catch (err) {
+    dispatch({
+      type: GET_USERS_ERR,
+      payload:
+        err.response && err.response.data.msg
+          ? err.response.data.msg
+          : err.message,
+    });
+  }
+};

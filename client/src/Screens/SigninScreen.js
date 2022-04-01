@@ -51,9 +51,9 @@ const SigninScreen = () => {
     if (
       name.trim() === "" ||
       !email.match(mialRegex) ||
-      birthDate.date === -1 ||
-      birthDate.month === -1 ||
-      birthDate.year === -1
+      Number(birthDate.date) === -1 ||
+      Number(birthDate.month) === -1 ||
+      Number(birthDate.year) === -1
     )
       return;
 
@@ -64,7 +64,7 @@ const SigninScreen = () => {
     setT2(true);
     if (!password.match(passRegex)) return;
     const dob = `${birthDate.year}-${birthDate.month}-${birthDate.date}`;
-    console.log(name, email, password, dob);
+    // console.log(name, email, password, dob);
     dispatch(registerUser(name, email, password, dob, setCookie));
     setPage(4);
   };
@@ -182,12 +182,12 @@ const SigninScreen = () => {
                 }}
                 value={birthDate.month}
                 className={`outline-none focus:border-2 bg-transparent border w-full py-4 px-2 rounded-md ${
-                  t1 && birthDate.month === -1
+                  t1 && Number(birthDate.month) === -1
                     ? "border-red-500 focus:border-red-500"
                     : "border-gray-700 focus:border-[#1d9bf0]"
                 }`}
               >
-                <option value=''>Month</option>
+                <option value='-1'>Month</option>
                 {months.map((el, index) => (
                   <option key={el[0]} className='bg-black' value={index}>
                     {el[0]}
@@ -203,7 +203,7 @@ const SigninScreen = () => {
                 value={birthDate.date}
                 placeholder='Date'
                 className={`outline-none focus:border-2 bg-transparent border w-full py-4 px-2 rounded-md ${
-                  t1 && birthDate.date === -1
+                  t1 && Number(birthDate.date) === -1
                     ? "border-red-500 focus:border-red-500"
                     : "border-gray-700 focus:border-[#1d9bf0]"
                 }`}
@@ -228,12 +228,12 @@ const SigninScreen = () => {
                 }}
                 value={birthDate.year}
                 className={`outline-none focus:border-2 bg-transparent border w-full py-4 px-2 rounded-md ${
-                  t1 && birthDate.year === -1
+                  t1 && Number(birthDate.year) === -1
                     ? "border-red-500 focus:border-red-500"
                     : "border-gray-700 focus:border-[#1d9bf0]"
                 }`}
               >
-                <option value=''>Year</option>
+                <option value={-1}>Year</option>
                 {birthDate.month == 1 && birthDate.date == 29
                   ? Array.from(Array(121).keys())
                       .reverse()
@@ -305,9 +305,9 @@ const SigninScreen = () => {
             className='bg-transparent text-[#d9d9d9] px-2 w-full outline-none focus:border-[#1d9bf0] focus:border-2 border border-gray-700 rounded-md py-4'
             placeholder='DOB'
             type='text'
-            value={`${birthDate.date} ${
-              months[Number(birthDate.month) + 1][0]
-            } ${birthDate.year}`}
+            value={`${birthDate.date} ${months[Number(birthDate.month)][0]} ${
+              birthDate.year
+            }`}
             disabled
           />
 

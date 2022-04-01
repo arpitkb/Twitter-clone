@@ -17,25 +17,69 @@ import {
   CREATE_REPLY_REQ,
   CREATE_REPLY_ERR,
   CREATE_REPLY_SUCC,
+  DELETE_POST_ERR,
+  DELETE_POST_REQ,
+  DELETE_POST_SUCC,
+  COMMENT_NUMBER_HANDLER,
+  CLEAR_ALL,
 } from "./types";
 import api from "../../utils/api";
 
-export const createPost = (content, images, replyTo=null) => async (dispatch) => {
+export const createPost =
+  (content, images, replyTo = null) =>
+  async (dispatch) => {
+    try {
+      dispatch({
+        type: CREATE_POST_REQ,
+      });
+
+      const { data } = await api.post("/api/post", {
+        content,
+        images,
+        replyTo,
+      });
+      // console.log(data);
+
+      dispatch({
+        type: CREATE_POST_SUCC,
+        payload: data,
+      });
+    } catch (err) {
+      dispatch({
+        type: CREATE_POST_ERR,
+        payload:
+          err.response && err.response.data.msg
+            ? err.response.data.msg
+            : err.message,
+      });
+    }
+  };
+
+export const deletePost = (id) => async (dispatch) => {
   try {
     dispatch({
-      type: CREATE_POST_REQ,
+      type: DELETE_POST_REQ,
     });
 
-    const { data } = await api.post("/api/post", { content, images, replyTo });
-    // console.log(data);
+    const { data } = await api.delete(`/api/post/${id}`);
 
     dispatch({
-      type: CREATE_POST_SUCC,
-      payload: data,
+      type: DELETE_POST_SUCC,
+      payload: id,
     });
+
+    if (data.replyTo) {
+      dispatch({
+        type: COMMENT_NUMBER_HANDLER,
+        payload: {
+          id: data.replyTo,
+          add: -1,
+        },
+      });
+    }
   } catch (err) {
     dispatch({
-      type: CREATE_POST_ERR,
+      type: DELETE_POST_ERR,
       payload:
         err.response && err.response.data.msg
           ? err.response.data.msg
@@ -44,51 +88,83 @@ export const createPost = (content, images, replyTo=null) => async (dispatch) =>
   }
 };
 
-export const createReply = (content, images, replyTo=null) => async (dispatch) => {
-  try {
-    dispatch({
-      type: CREATE_REPLY_REQ,
-    });
+export const createReply =
+  (content, images, replyTo = null) =>
+  async (dispatch) => {
+    try {
+      dispatch({
+        type: CREATE_REPLY_REQ,
+      });
 
-    const { data } = await api.post("/api/post", { content, images, replyTo });
-    // console.log(data);
+      const { data } = await api.post("/api/post", {
+        content,
+        images,
+        replyTo,
+      });
+      // console.log(data);
 
-    dispatch({
-      type: CREATE_REPLY_SUCC,
-      payload: data,
-    });
-  } catch (err) {
-    dispatch({
-      type: CREATE_REPLY_ERR,
-      payload:
-        err.response && err.response.data.msg
-          ? err.response.data.msg
-          : err.message,
-    });
-  }
+      dispatch({
+        type: CREATE_REPLY_SUCC,
+        payload: data,
+      });
+
+      if (replyTo) {
+        dispatch({
+          type: COMMENT_NUMBER_HANDLER,
+          payload: {
+            id: replyTo,
+            add: 1,
+          },
+        });
+      }
+    } catch (err) {
+      console.log(err);
+      dispatch({
+        type: CREATE_REPLY_ERR,
+        payload:
+          err.response && err.response.data.msg
+            ? err.response.data.msg
+            : err.message,
+      });
+    }
+  };
+
+export const clearFeedPosts = () => async (dispatch) => {
+  dispatch({
+    type: CLEAR_ALL,
+  });
 };
 
-export const getAllPosts = () => async (dispatch) => {
-  try {
-    dispatch({
-      type: GET_ALL_POSTS_REQ,
-    });
-    const { data } = await api.get("/api/post");
-    // console.log(data);
-    dispatch({
-      type: GET_ALL_POSTS_SUCC,
-      payload: data,
-    });
-  } catch (err) {
-    dispatch({
-      type: GET_ALL_POSTS_ERR,
-      payload:
-        err.response && err.response.data.msg
-          ? err.response.data.msg
-          : err.message,
-    });
-  }
-};
+export const getAllPosts =
+  (page = 1) =>
+  async (dispatch) => {
+    try {
+      dispatch({
+        type: GET_ALL_POSTS_REQ,
+      });
+      const { data } = await api.get(`/api/post?page=${page}`);
+      // console.log(data);
+      if (data.length === 0) {
+        dispatch({
+          type: GET_ALL_POSTS_SUCC,
+          payload: { posts: data, hasMore: false },
+        });
+      } else {
+        dispatch({
+          type: GET_ALL_POSTS_SUCC,
+          payload: { posts: data, hasMore: true },
+        });
+      }
+    } catch (err) {
+      dispatch({
+        type: GET_ALL_POSTS_ERR,
+        payload:
+          err.response && err.response.data.msg
+            ? err.response.data.msg
+            : err.message,
+      });
+    }
+  };
 
 export const getPost = (id) => async (dispatch) => {
   try {

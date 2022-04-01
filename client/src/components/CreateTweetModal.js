@@ -25,6 +25,7 @@ const CreateTweetModal = () => {
   const [showEmojis, setShowEmojis] = useState(false);
 
   const imagePickerRef = useRef();
+  const ref1 = useRef();
 
   const [isOpen, setIsOpen] = useState(true);
 
@@ -66,10 +67,27 @@ const CreateTweetModal = () => {
     });
   };
 
+  // removing emoji picker on outside click
+  useEffect(
+    (e) => {
+      const checkIfClickedOutside = (e) => {
+        if (showEmojis && ref1.current && !ref1.current.contains(e.target)) {
+          setShowEmojis(false);
+        }
+      };
+
+      document.addEventListener("click", checkIfClickedOutside, true);
+      return () => {
+        document.removeEventListener("click", checkIfClickedOutside, true);
+      };
+    },
+    [showEmojis]
+  );
+
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog as='div' className='fixed z-50 inset-0 pt-2' onClose={closeModal}>
-        <div className='flex items-start justify-center min-h-[800px] sm:min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0'>
+        <div className='relative flex items-start justify-center min-h-[800px] sm:min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0'>
           <Transition.Child
             as={Fragment}
             enter='ease-out duration-300'
@@ -92,8 +110,9 @@ const CreateTweetModal = () => {
             leaveTo='opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'
           >
             <div
-              onClick={() => setShowEmojis(false)}
-              className='inline-block align-bottom bg-black rounded-2xl text-left overflow-auto max-h-[650px] shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-[600px] sm:w-full'
+              className={`inline-block align-bottom bg-black rounded-2xl text-left overflow-auto max-h-[650px] shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-[600px] sm:w-full ${
+                loading && "opacity-60"
+              }`}
             >
               <div className='flex items-center px-1.5 py-2'>
                 <div
@@ -155,7 +174,8 @@ const CreateTweetModal = () => {
                           <div className='flex items-center'>
                             <div
                               className='icon cursor-pointer'
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setShowEmojis(false);
                                 imagePickerRef.current.click();
                               }}
@@ -184,20 +204,6 @@ const CreateTweetModal = () => {
                             >
                               <EmojiHappyIcon className='text-[#1d9bf0] h-[22px]' />
                             </div>
-                            {showEmojis && (
-                              <Picker
-                                onSelect={addEmoji}
-                                style={{
-                                  position: "absolute",
-                                  marginTop: "-470px",
-                                  marginLeft: "-62px",
-                                  borderRadius: "30px",
-                                  maxWidth: "320px",
-                                  zIndex: "101",
-                                }}
-                                theme='dark'
-                              />
-                            )}
 
                             <div className='icon'>
                               <CalendarIcon className='text-[#1d9bf0] h-[22px]' />
@@ -222,6 +228,21 @@ const CreateTweetModal = () => {
               </div>
             </div>
           </Transition.Child>
+
+          {showEmojis && (
+            <div ref={ref1} className='absolute left-1/3 top-1/3'>
+              <Picker
+                onSelect={addEmoji}
+                style={{
+                  // marginTop: "465px",
+                  // marginLeft: "62px",
+                  borderRadius: "30px",
+                  maxWidth: "319px",
+                }}
+                theme='dark'
+              />
+            </div>
+          )}
         </div>
       </Dialog>
     </Transition.Root>

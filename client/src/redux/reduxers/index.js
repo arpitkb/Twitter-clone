@@ -1,8 +1,14 @@
 import { combineReducers } from "redux";
 import { modalReducer } from "./modal";
 import { authReducer } from "./auth";
-import { createPostReducer, postsReducer, postReducer } from "./post";
-import { profileReducer ,usersReducer} from "./user";
+import {
+  createPostReducer,
+  postsReducer,
+  postReducer,
+  userPostsReducer,
+} from "./post";
+import { profileReducer, userListReducer, usersReducer } from "./user";
+import { chatsReducer } from "./chat";
 
 export default combineReducers({
   modal: modalReducer,
@@ -11,5 +17,8 @@ export default combineReducers({
   posts: postsReducer,
   post: postReducer,
   profile: profileReducer,
-  users : usersReducer
+  users: usersReducer,
+  userList: userListReducer,
+  userPosts: userPostsReducer,
+  chats: chatsReducer,
 });

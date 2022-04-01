@@ -13,6 +13,8 @@ import { Cookies } from "react-cookie";
 import { logoutUser, loadUser } from "./redux/actions/auth";
 import { useDispatch } from "react-redux";
 import Widgets from "./components/Widgets";
+import FollowListScreen from "./Screens/FollowListScreen";
+import MessagesScreen from "./Screens/MessagesScreen";
 
 function App() {
   const cookies = new Cookies();
@@ -47,6 +49,14 @@ function App() {
           element={<PrivateRoute component={<HomeScreen />} />}
         />
         <Route
+          path='/:username/following'
+          element={<PrivateRoute component={<FollowListScreen />} />}
+        />
+        <Route
+          path='/:username/followers'
+          element={<PrivateRoute component={<FollowListScreen />} />}
+        />
+        <Route
           path='/:username'
           element={<PrivateRoute component={<ProfileScreen />} />}
         />
@@ -66,10 +76,20 @@ function App() {
           path='/:username/status/:tweetId'
           element={<PrivateRoute component={<StatusScreen />} />}
         />
+        <Route
+          path='/messages'
+          element={<PrivateRoute component={<MessagesScreen />} />}
+        />
+        <Route
+          path='/messages/:chatId'
+          element={<PrivateRoute component={<MessagesScreen />} />}
+        />
       </Routes>
       {location.pathname !== "/login" &&
         location.pathname !== "/register" &&
-        location.pathname !== "/" && <Widgets />}
+        location.pathname !== "/" &&
+        location.pathname !== "/messages" &&
+        location.pathname.split("/")[1] !== "messages" && <Widgets />}
     </div>
   );
 }
