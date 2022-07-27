@@ -21,3 +21,9 @@ export const timeDateDisplay = (mongoDate) => {
   let da = `${arr[1]} ${arr[2]}, ${arr[3]}`;
   return [date.toLocaleTimeString(), da];
 };
+
+export const messageTimeDisplay = (mongoDate) => {
+  let date = new Date(mongoDate);
+  return date.toDateString().slice(3) + ", " + date.toLocaleTimeString();
+  // return date.toDateString();
+};

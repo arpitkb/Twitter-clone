@@ -11,8 +11,9 @@ import {
 } from "./types";
 import api from "../../utils/api";
 
-export const logoutUser = () => (dispatch) => {
+export const logoutUser = (fn) => (dispatch) => {
   localStorage.removeItem("twitter_user");
+  fn("_token", null, { path: "/" });
   dispatch({
     type: LOGOUT,
   });

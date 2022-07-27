@@ -15,6 +15,7 @@ import { useDispatch } from "react-redux";
 import Widgets from "./components/Widgets";
 import FollowListScreen from "./Screens/FollowListScreen";
 import MessagesScreen from "./Screens/MessagesScreen";
+import NotificationScreen from "./Screens/NotificationScreen";
 
 function App() {
   const cookies = new Cookies();
@@ -83,6 +84,14 @@ function App() {
         <Route
           path='/messages/:chatId'
           element={<PrivateRoute component={<MessagesScreen />} />}
+        />
+        <Route
+          path='/messages/:chatId'
+          element={<PrivateRoute component={<MessagesScreen />} />}
+        />
+        <Route
+          path='/notification'
+          element={<PrivateRoute component={<NotificationScreen />} />}
         />
       </Routes>
       {location.pathname !== "/login" &&

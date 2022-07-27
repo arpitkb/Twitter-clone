@@ -3,6 +3,7 @@ const ErrorResponse = require("../utils/ErrorResponse");
 const wrapAsync = require("../utils/wrapAsync");
 const Post = require("../models/Post");
 const { getPostsHelper } = require("../utils/functions");
+const Notification = require("../models/Notification");
 
 // @desc        GET a user
 // @route       GET /api/user/:username
@@ -49,6 +50,15 @@ module.exports.toggleFollow = wrapAsync(async (req, res, next) => {
     await User.findByIdAndUpdate(req.user._id, {
       $addToSet: { following: id },
     });
+  }
+
+  if (!doIFollow) {
+    await Notification.addNotification(
+      id,
+      req.user._id,
+      "follow",
+      req.user._id
+    );
   }
 
   res.status(201).json({ msg: "success" });

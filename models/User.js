@@ -24,13 +24,8 @@ const userSchema = mongoose.Schema(
     },
     password: {
       type: String,
-      //   select: false,
       required: [true, "Password is required"],
       select: false,
-      //   match: [
-      //     /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{7,15}$/,
-      //     "Password must be between 7 to 15 characters which contain at least one numeric digit and a special character",
-      //   ],
     },
     dob: {
       type: Date,

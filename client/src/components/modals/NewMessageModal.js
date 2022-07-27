@@ -50,7 +50,6 @@ const NewMessageModal = ({ isOpen, closeModal }) => {
     dispatch(
       createChat(
         selectedUsers.map((el) => el._id),
-        selectedUsers.map((el) => el.name.split(" ")[0]).join(","),
         navigate
       )
     );

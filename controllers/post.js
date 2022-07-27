@@ -3,6 +3,7 @@ const ErrorResponse = require("../utils/ErrorResponse");
 const wrapAsync = require("../utils/wrapAsync");
 const Post = require("../models/Post");
 const { getPostsHelper } = require("../utils/functions");
+const Notification = require("../models/Notification");
 
 // @desc        Create a post
 // @route       POST /api/post
@@ -20,6 +21,15 @@ module.exports.createPost = wrapAsync(async (req, res, next) => {
   let post = await Post.create(postData);
   post = await getPostsHelper({ _id: post._id });
   post = post[0];
+  if (replyTo) {
+    await Notification.addNotification(
+      replyTo,
+      req.user._id,
+      "reply",
+      post._id
+    );
+  }
+
   res.status(201).json(post);
 });
 
@@ -116,6 +126,10 @@ module.exports.toggleLike = wrapAsync(async (req, res, next) => {
     );
     await User.findByIdAndUpdate(req.user._id, { $addToSet: { likes: id } });
   }
+
+  if (!isLiked) {
+    await Notification.addNotification(post.author, req.user._id, "like", id);
+  }
   res.status(201).json(post);
 });
 
@@ -196,6 +210,15 @@ module.exports.toggleRetweet = wrapAsync(async (req, res, next) => {
     await User.findByIdAndUpdate(req.user._id, {
       $addToSet: { retweets: id },
     });
+  }
+
+  if (!isRetweeted) {
+    await Notification.addNotification(
+      post.author,
+      req.user._id,
+      "retweet",
+      id
+    );
   }
   res.status(201).json(post);
 });

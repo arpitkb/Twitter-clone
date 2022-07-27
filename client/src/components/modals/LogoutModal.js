@@ -2,12 +2,15 @@ import React, { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { logoutUser } from "../../redux/actions/auth";
 import { useDispatch } from "react-redux";
+import { useCookies } from "react-cookie";
 
 const LogoutModal = ({ isOpen, closeModal }) => {
   const dispatch = useDispatch();
 
+  const [cookies, setCookie] = useCookies(["_token"]);
+
   const logout = () => {
-    dispatch(logoutUser());
+    dispatch(logoutUser(setCookie));
   };
 
   return (

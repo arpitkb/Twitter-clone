@@ -8,7 +8,7 @@ import {
   userPostsReducer,
 } from "./post";
 import { profileReducer, userListReducer, usersReducer } from "./user";
-import { chatsReducer } from "./chat";
+import { chatReducer, chatsReducer, messagesReducer } from "./chat";
 
 export default combineReducers({
   modal: modalReducer,
@@ -21,4 +21,6 @@ export default combineReducers({
   userList: userListReducer,
   userPosts: userPostsReducer,
   chats: chatsReducer,
+  chat: chatReducer,
+  messages: messagesReducer,
 });

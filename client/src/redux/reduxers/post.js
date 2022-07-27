@@ -73,6 +73,28 @@ export const userPostsReducer = (state = { userPosts: [] }, action) => {
       return {
         userPosts: [],
       };
+    case DELETE_POST_SUCC:
+      return {
+        ...state,
+        userPosts: state.userPosts.filter((el) => el._id !== payload),
+      };
+    case DELETE_POST_ERR:
+      return {
+        ...state,
+        err: payload,
+      };
+    case LIKE_POST_SUCC:
+      return {
+        ...state,
+        userPosts: state.userPosts.map((el) => {
+          if (el._id === payload.postId) {
+            if (payload.ilbm)
+              el.likes = el.likes.filter((el) => el !== payload.userId);
+            else el.likes.push(payload.userId);
+          }
+          return el;
+        }),
+      };
     default:
       return state;
   }
