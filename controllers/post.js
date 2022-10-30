@@ -18,6 +18,7 @@ module.exports.createPost = wrapAsync(async (req, res, next) => {
     await Post.findByIdAndUpdate(replyTo, { $inc: { numComments: 1 } });
   }
 
+  // create new post with given post data
   let post = await Post.create(postData);
   post = await getPostsHelper({ _id: post._id });
   post = post[0];
