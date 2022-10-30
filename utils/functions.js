@@ -5,10 +5,13 @@ module.exports.getPostsHelper = async (filter, page) => {
   const limit = 8;
 
   const total = await Post.countDocuments(filter);
+
+  // total number of pages
   const pages = Math.ceil(total / limit);
 
+  // start index of the pages
   const startIndex = (page - 1) * limit;
-  // console.log(page, pages);
+
   let posts;
 
   if (!page) {

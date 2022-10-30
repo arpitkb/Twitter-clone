@@ -182,7 +182,7 @@ const LoginScreen = () => {
                 login
               </button>
               <div className='text-[#6e767d] '>
-                Don't have an account?{" "}
+                Don't have an account ?{" "}
                 <Link
                   className='inline text-[#1d9bf0] hover:underline'
                   to='/register'
